@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.log
+.n8n/
+.n8n_data/
+.DS_Store
