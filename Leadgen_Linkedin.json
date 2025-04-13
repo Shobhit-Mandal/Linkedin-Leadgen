@@ -1,0 +1,2951 @@
+{
+  "name": "Leadgen-Linkedin",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://api.hunter.io/v2/email-verifier?email={{ $json.value }}&api_key=ea3d2a0067c6c83a188e3db538f23d1d3cb22e79",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2220,
+        240
+      ],
+      "id": "1a26d9f8-9d69-49e7-91f3-aca41cd4afa2",
+      "name": "Email Verifier API",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.hunter.io/v2/domain-search?domain={{ $json.websiteUrl }}/&api_key=ea3d2a0067c6c83a188e3db538f23d1d3cb22e79",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1020,
+        940
+      ],
+      "id": "8edcf899-61e7-4c11-a3a7-218e60248ecd",
+      "name": "Email Finder API",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=1)Lead details:\nCompany name: {{ $('HTTP Request').first().json.companyName }}\nCompany description: {{ $json.jobID.company_description }}\nemail-id: {{ $json.jobID.email.value }}\ntype: {{ $json.jobID.email.type }}\nfirst name:{{ $json.jobID.email.first_name }}\nlast name:{{ $json.jobID.email.last_name }}\nposition:{{ $json.jobID.email.position }}\ndepartment:{{ $json.jobID.email.department }}\njob description:{{ $json.jobID.jobDescription }}\nWork type: {{ $json.jobID.workType }}\ntitle:{{ $json.jobID.title }}\n\n2) Agency/Sender details:\nAgency name: {{ $('Limit1').first().json['Your Agency\\'s name'] }}\nSender name: {{ $('Limit1').first().json['Your name (optional)'] }}\nSender position: {{ $('Limit1').first().json['Your position (optional)'] }}\nPhone number: {{ $('Limit1').first().json['Mobile number (optional)'] }}\nWebsite link: {{ $('Limit1').first().json['Your website link (optional)'] }}\nServices description: {{ $('Limit1').first().json['Description of the services'] }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a professional email writing assistant specialized in crafting highly personalized B2B outreach emails.  When I invoke you, I will provide a JSON object containing:\n\n• lead data:\n  – companyName  \n  – jobTitle  \n  – jobDescription  \n  – companyDescription  \n  – lead email fields: { email, type, first_name, last_name, position, department, phone_number }  \n• our agency’s data:\n  – business_name  \n  – service_description  \n  – your_name  \n  – mobile_number  \n  – website_link  \n  – your_position  \n\nYour task is to generate a single, plain‑text email (no JSON) with the following strict requirements:\n\n1. **Subject Line**  \n   - Must be concise (6–8 words) and reference the lead’s company or role.  \n   - E.g.: “Scale VidUnit’s Brand Partnerships Faster”  \n\n2. **Greeting**  \n   - Address the lead by first name: “Hi Sania,” if email type is personal or \"Hi, Team\" if type is generic. \n\n3. **Introductory Paragraph**  \n   - 1–2 sentences that show you’ve read their LinkedIn job post: mention their role (Brand Partnership Manager) and one key fact from the jobDescription or companyDescription.  \n   - E.g.: “I saw you’re leading Brand Partnerships at VidUnit—your team’s work with PunToon Kids and your data‑driven influencer platform is impressive.”  \n\n4. **Pain‑Point + Solution Paragraph**  \n   - 2–3 sentences that connect one or two challenges implicit in their job (e.g. securing brand sponsorships at scale, managing multiple creator campaigns) to your service_description.  \n   - Use concrete language: “Rather than hiring a single rep, our dedicated team handles lead gen, follow‑ups, market research, and campaign strategy—all in parallel, so you hit your sponsorship targets faster and with no training overhead.”  \n\n5. **Value Proposition Paragraph**  \n   - 2–3 bullet points or short sentences summarizing your top benefits:  \n     • “Faster results with a full support squad, not just one hire.”  \n     • “End‑to‑end campaign management from pitch to reporting.”  \n     • “Scale without the HR hassle—pay only for outcomes.”  \n\n6. **Call to Action**  \n   - 1 sentence proposing next step: “Could we schedule a 15‑minute call this week to explore how our team can accelerate VidUnit’s brand partnerships?”  \n\n7. **Closing & Signature**  \n   - “Best regards,”  \n   - Then your_name, your_position, business_name  \n   - If website_link or mobile_number is provided, include them on separate lines.  \n\n8. **Footer**  \n   - If the input JSON includes any additional “phone_number” for the lead or other contact details, **do not** include them—only include your own footer info.  \n   - Do not add any generic marketing slogans or disclaimers beyond what’s specified.  \n\n**Important:**  \n- **Use only** the data fields provided in the JSON; do not invent titles, numbers, or links.  \n- **Do not** reference the LLM, n8n, or any tool—write as a human sender.  \n- Keep the tone professional, friendly, and focused on ROI and efficiency.  \n- The output must be a single email text, ready to paste into Gmail.  \n"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -700,
+        260
+      ],
+      "id": "c0693116-72d1-4cda-b5f0-7d4eed9029d9",
+      "name": "Basic LLM Chain1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        520
+      ],
+      "id": "7f14e96c-d283-4623-a475-d45b6fc760c6",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "1227vVzjuPKP1ahE",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"email\": \"abcd@company.com\",\n\t\"subject\": \"\",\n    \"content\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        520
+      ],
+      "id": "299f827a-ea17-40eb-9151-235413ffef44",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "jsCode": "function replaceNull(value) {\n    return value === null || value === undefined || value === \"\" ? \"NULL\" : value;\n}\n\n// Assuming input JSON is stored in `inputData`\nlet inputData = $input.all(); // Replace this with your actual JSON variable\n\nlet jobID = $('Limit').first().json.id;\n\n// Extract emails from all companies\nlet formattedData = inputData.flatMap(company => {\n    let emailsData = company.json.data?.emails || [];\n    let domain = $('HTTP Request').first().json.websiteUrl || [];\n    return emailsData.map(email => ({\n        domain,\n        value: replaceNull(email.value),\n        type: replaceNull(email.type),\n        first_name: replaceNull(email.first_name),\n        last_name: replaceNull(email.last_name),\n        position: replaceNull(email.position),\n        department: replaceNull(email.department),\n        phone_number: replaceNull(email.phone_number),\n        jobId: jobID,\n    }));\n});\n\n// Limit output to 3 items if more than 3\nreturn formattedData.slice(0, 10);\n\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        960
+      ],
+      "id": "4b2e47ef-e522-4514-994f-e09cb06a2aac",
+      "name": "person data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.all().map(item => {\n  const data = item.json.data;\n  const email = item.json.meta?.params?.email || \"N/A\";\n  const domain = $('Loop Over Items1').first().json.domain;\n  \n  return {\n    domain,\n    email,\n    status: data.status,\n    result: data.result,\n    gibberish: data.gibberish,\n    disposable: data.disposable,\n    block: data.block,\n    smtp_check: data.smtp_check\n  };\n});\n\nreturn output; "
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2000,
+        240
+      ],
+      "id": "7a167901-4966-436a-a559-26b5d10bfc33",
+      "name": "email validation data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.all().map(item => {\n  const data = item.json || {}; // Ensure fallback to an empty object\n\n  // Extract fields with default values if missing\n  const email = data.email || \"N/A\";\n  const result = data.result || \"unknown\";\n  const status = data.status || \"unknown\";\n  const smtp_check = data.smtp_check ?? false;\n  const gibberish = data.gibberish ?? false;\n  const disposable = data.disposable ?? false;\n  const block = data.block ?? false;\n\n  // Determine if we can use this email\n  let verified = false;\n\n  if (result === \"deliverable\") {\n    verified = true;\n  } else if (result === \"undeliverable\") {\n    verified = false;\n  } else if (result === \"risky\") {\n    // Lenient filtering: Allow if at least 3 positive checks pass\n    const positiveChecks = [smtp_check, !gibberish, !disposable, !block].filter(Boolean).length;\n    verified = positiveChecks >= 3;\n  }\n\n  return {\n    email,\n    verified\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1780,
+        240
+      ],
+      "id": "41a987ba-bc13-4f7b-97ca-b321f6378c4f",
+      "name": "verifier rule"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "all data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "jobId": "={{ $json.allData.jobId }}",
+            "companyId": "={{ $json.allData.companyId }}",
+            "domain": "={{ $json.allData.domain }}",
+            "jobDescription": "={{ $json.allData.jobDescription }}",
+            "jobUrl": "={{ $json.allData.jobURL }}",
+            "company_name": "={{ $json.allData.companyName }}",
+            "company_description": "={{ $json.allData.website_description }}",
+            "location": "={{ $json.allData.location }}",
+            "employee_count": "={{ $json.allData.employee_count }}",
+            "jobType": "={{ $json.allData.jobType }}",
+            "title": "={{ $json.allData.title }}",
+            "emailId": "={{ $json.allData.emailId }}",
+            "type": "={{ $json.allData.type }}",
+            "fisrt_name": "={{ $json.allData.first_name }}",
+            "last_name": "={{ $json.allData.last_name }}",
+            "position": "={{ $json.allData.position }}",
+            "department": "={{ $json.allData.department }}",
+            "phone_number": "={{ $json.allData.phone_no }}",
+            "subject": "={{ $json.allData.subject }}",
+            "content": "={{ $json.allData.content }}",
+            "user email": "={{ $json.allData.user_email }}",
+            "agency name": "={{ $json.allData.agency_name }}",
+            "time stamp": "={{ $json.allData.timeStamp }}",
+            "searched title": "={{ $('Limit1').first().json[\"Job Title\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "jobId",
+              "displayName": "jobId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "companyId",
+              "displayName": "companyId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jobDescription",
+              "displayName": "jobDescription",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jobUrl",
+              "displayName": "jobUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_description",
+              "displayName": "company_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "employee_count",
+              "displayName": "employee_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jobType",
+              "displayName": "jobType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "emailId",
+              "displayName": "emailId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "type",
+              "displayName": "type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fisrt_name",
+              "displayName": "fisrt_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "position",
+              "displayName": "position",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user email",
+              "displayName": "user email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "agency name",
+              "displayName": "agency name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "searched title",
+              "displayName": "searched title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "time stamp",
+              "displayName": "time stamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8907b1ef-ae4a-47d3-88ae-4197cf384b9e",
+      "name": "emails",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iSQRtblSFRnw8muO",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2645e971-4c60-49fa-a888-d3e6bc313905",
+              "leftValue": "={{ $json.data.emails }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -660,
+        940
+      ],
+      "id": "7503a6ae-95f3-4c9f-96c6-199fac34249a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d338cb4f-c039-495a-9e49-bb1c6986f3f4",
+              "leftValue": "={{ $json.verified }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1580,
+        240
+      ],
+      "id": "cd4196f2-1b3d-419f-8848-fd9c37649e54",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "function replaceNull(value) {\n    return value === null || value === undefined || value === \"\" ? \"NULL\" : value;\n}\n\nlet inputData = $input.all();\nlet inputEmail = $input.first().json.email;\n\n\nlet formattedData = inputData.flatMap(company => {\n    let emailsData = company.json.data?.emails || [];\n    let domain = $('HTTP Request').first().json.websiteUrl || [];\n    \n    return emailsData.map(email => ({\n        domain,\n        value: replaceNull(email.value),\n        type: replaceNull(email.type),\n        first_name: replaceNull(email.first_name),\n        last_name: replaceNull(email.last_name),\n        position: replaceNull(email.position),\n        department: replaceNull(email.department),\n        phone_number: replaceNull(email.phone_number)\n    }));\n});\n\n// Filter the data to return only the matching email details\nlet filteredData = formattedData.find(email => email.value === inputEmail) || {};\n\nreturn filteredData;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        260
+      ],
+      "id": "de8de672-65d6-4803-bcbc-133188dfced3",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2460,
+        880
+      ],
+      "id": "9aa61c1a-3478-4a57-b578-0f74171532b2",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": "={{ $prevNode.name === 'Code8' }}"
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2620,
+        220
+      ],
+      "id": "cb150fbf-371e-45fa-b9c1-d8feebbb68c0",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n    ...$input.all()\n        .map(item => item.json), // Extract existing input data\n\n    { \n        ...$('If').first().json  // Fetch the entire data from \"If\" node\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1380,
+        260
+      ],
+      "id": "01d25a3f-1482-4c58-b296-67a07784db6f",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n      jobID: {\n          company_description: $('HTTP Request').first().json.description,\n          domain: $input.first().json.domain,\n          email: $('Code2').first().json,\n          jobDescription: $('Loop Over Items2').first().json.description,\n          tagsAndSkills: $('Loop Over Items2').first().json.tagsAndSkills,\n          location: $('Loop Over Items2').first().json.location,\n          title: $('Loop Over Items2').first().json.title,\n          workType: $('Loop Over Items2').first().json.workType\n      }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        260
+      ],
+      "id": "090f0e22-fc36-4638-819f-3eb058474a11",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a9206bd1-7028-4f64-b094-a69f6b7857f6",
+              "leftValue": "={{ $input.first().json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1520,
+        900
+      ],
+      "id": "e464a86b-61b6-4f5a-8b41-3c3bf18794cf",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n      allData: {\n        jobId: $('Loop Over Items2').first().json.id,\n        website_description: $('HTTP Request').first().json.description,\n        domain: $('HTTP Request').first().json.websiteUrl,\n        companyName: $('Loop Over Items2').first().json.companyName,\n        emailId: $('Code2').first().json.value,\n        type: $('Code2').first().json.type,\n        first_name: $('Code2').first().json.first_name,\n        last_name: $('Code2').first().json.last_name,\n        position: $('Code2').first().json.position,\n        department: $('Code2').first().json.department,\n        phone_no: $('Code2').first().json.phone_number,\n        jobDescription: $('Loop Over Items2').first().json.description,\n        location: $('Loop Over Items2').first().json.location,\n        title: $('Loop Over Items2').first().json.title,\n        jobType: $('Loop Over Items2').first().json.workType,\n        subject: $input.first().json.output.subject,\n        content: $input.first().json.output.content,\n        companyId: $('Loop Over Items2').first().json.companyId,\n        jobURL: $('Loop Over Items2').first().json.jobUrl,\n        employee_count: $('HTTP Request').first().json.employeeCount,\n        user_email: $('Limit1').first().json[\"Email address\"],\n        agency_name: $('Limit1').first().json[\"Your Agency's name\"],\n        timeStamp: $('Limit1').first().json.Timestamp\n      }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        260
+      ],
+      "id": "f0420832-93ea-4068-95e2-4e87c2472048",
+      "name": "allData"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit?gid=1153163846#gid=1153163846",
+          "mode": "url"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        280,
+        620
+      ],
+      "id": "fb495472-c289-435e-9224-4c91b10d1db3",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "CenyzJKQtDKMxdaK",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1980,
+        900
+      ],
+      "id": "b1dae6c8-f8cd-4af7-b61d-ab82eb5d4077",
+      "name": "Wait",
+      "webhookId": "bce3bd99-a6de-46a7-ad7d-d368273a98dd"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/bebity~linkedin-jobs-scraper/run-sync-get-dataset-items?",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer apify_api_j0AB4hyrp28v7vUL2Cy8AD445nJuye2smUVf"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ $input.first().json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3560,
+        1140
+      ],
+      "id": "8c3f0155-5464-452b-bc6d-02ca375acdee",
+      "name": "linkedin scraper",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.all(); // Get all input data\n\n// Check if input has any data\nreturn [{ json: { hasData: input.length > 0 } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2420,
+        640
+      ],
+      "id": "8a70ffe3-1844-4c85-ac95-f5db6e395d2e",
+      "name": "Code13"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://api.apify.com/v2/acts/dev_fusion~linkedin-company-scraper/run-sync-get-dataset-items?",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer apify_api_j0AB4hyrp28v7vUL2Cy8AD445nJuye2smUVf"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={\n  \"profileUrls\": [\n    \"{{ $json.companyUrl }}\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1760,
+        900
+      ],
+      "id": "9a8b8c23-5e97-4f39-96dd-743a0b32c8a4",
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6b2c25f7-cc4e-413f-9543-45dd4cc45d30",
+              "leftValue": "={{ $json.companyUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2200,
+        900
+      ],
+      "id": "8a3bf6e5-c838-4e2c-a03e-5e323d8e8c17",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7c7fb635-175a-4999-adc1-70cf7c0197c0",
+              "leftValue": "={{ $json.employeeCount }}",
+              "rightValue": "={{ $('Limit1').first().json[\"Max employee count\"] }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1260,
+        920
+      ],
+      "id": "268c83d2-d007-4bc4-943e-fdfb7047f6d1",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "all data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "title",
+              "lookupValue": "Customer Care Representative"
+            },
+            {
+              "lookupColumn": "user email",
+              "lookupValue": "={{ $('Limit1').first().json[\"Email address\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -4020,
+        600
+      ],
+      "id": "796e39da-a666-4350-b015-6f36047b59d0",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iSQRtblSFRnw8muO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e5aed65-7c0b-4421-b26d-1a2e273155dc",
+              "name": "jobId",
+              "value": "={{ $json.jobId }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3820,
+        600
+      ],
+      "id": "76856729-eda4-419b-911a-02a8cdb2e114",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -3600,
+        600
+      ],
+      "id": "3b6cadad-cfe1-4cd4-be72-fd434cbea255",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -3360,
+        700
+      ],
+      "id": "b0c43837-12c4-4213-a3a1-03e7dec070c4",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract all jobId values into a Set for fast lookup\nconst jobIds = new Set($input.all().filter(row => row.json.jobId).map(row => row.json.jobId));\n\n// Filter out items where id exists in jobIds and keep all related data\nconst uniqueJobs = $input.all()\n  .filter(row => row.json.id && !jobIds.has(Number(row.json.id)))\n  .map(row => row.json); // Extract the full JSON object\n\nreturn uniqueJobs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3180,
+        700
+      ],
+      "id": "cd882932-8f41-442a-b54e-c64911122acf",
+      "name": "Code17"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2820,
+        880
+      ],
+      "id": "986a2790-0f79-40f7-8661-dbca161cc2fe",
+      "name": "Limit",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Google Sheets Trigger1').first().json;\n\nconst publishedAtMap = {\n  \"Past month\": \"r2592000\",\n  \"Past week\": \"r604800\",\n  \"Past 24 hours\": \"r86400\",\n  \"Any time\": \" \"\n};\n\nconst jobTypeMap = {\n  \"Full time\": \"F\",\n  \"Part time\": \"P\",\n  \"Contract based\": \"C\",\n  \"Internship\": \"I\",\n  \"Volunteer\": \"V\",\n  \"Temporary\": \"T\"\n};\n\nconst experienceMap = {\n  \"Internship\": \"1\",\n  \"Entry level\": \"2\",\n  \"Associate\": \"3\",\n  \"Mid-Senior\": \"4\",\n  \"Director\": \"5\"\n};\n\nconst workType = {\n  \"On-site\": \"1\",\n  \"Remote\": \"2\",\n  \"Hybrid\": \"3\"\n};\n\ninput.publishedCode = publishedAtMap[input[\"Published at\"]] || \" \";\ninput.jobTypeCode = jobTypeMap[input[\"Job Type\"]] || \" \";\ninput.experienceCode = experienceMap[input[\"Experience level\"]] || \" \";\ninput.workTypeCode = workType[input[\"On-site/Remote\"]] || \" \";\n\nreturn [\n  {\n    json: input\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4000,
+        1100
+      ],
+      "id": "cf50cc8d-2238-47ff-92dc-65aa3bf4cf05",
+      "name": "Code16"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const input = item.json;\n\n  const output = {\n    // Constants: Always present\n    title: input[\"Job Title\"],\n    proxy: {\n      useApifyProxy: true,\n      apifyProxyGroups: [\"RESIDENTIAL\"]\n    }\n  };\n\n  // Optional fields – only add if present and non-empty\n  if (input[\"Location\"] && input[\"Location\"].trim()) {\n    output.location = input[\"Location\"];\n  }\n\n  if (input[\"publishedCode\"] && input[\"publishedCode\"].trim()) {\n    output.publishedAt = input[\"publishedCode\"];\n  }\n\n  if (input[\"Total Jobs\"] !== undefined && input[\"Total Jobs\"] !== null) {\n    output.rows = input[\"Total Jobs\"];\n  }\n\n  if (input[\"jobTypeCode\"] && input[\"jobTypeCode\"].trim()) {\n    output.jobType = input[\"jobTypeCode\"];\n  }\n\n  if (input[\"experienceCode\"] && input[\"experienceCode\"].trim()) {\n    output.experience = input[\"experienceCode\"];\n  }\n\n  if (input[\"workTypeCode\"] && input[\"workTypeCode\"].trim()) {\n    output.onSiteOrRemote = input[\"workTypeCode\"];\n  }\n\n  return { json: output };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3780,
+        1100
+      ],
+      "id": "b3987405-5502-4dc6-8154-37bedc1f9f22",
+      "name": "Code18"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit?resourcekey=&gid=1852384548#gid=1852384548",
+          "mode": "url"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -5760,
+        940
+      ],
+      "id": "97e5d62f-038f-4884-8555-31bbeafa4f40",
+      "name": "Google Sheets Trigger1",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "CenyzJKQtDKMxdaK",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1852384548,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit#gid=1852384548"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -5360,
+        940
+      ],
+      "id": "aabf265f-3a25-4224-91cb-871eed72532f",
+      "name": "Google Sheets2",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iSQRtblSFRnw8muO",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e5aed65-7c0b-4421-b26d-1a2e273155dc",
+              "name": "email",
+              "value": "={{ $json[\"Email address\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "42a46421-e7e0-4a8f-8d14-a7784bcf62ef",
+              "name": "Job title",
+              "value": "={{ $json[\"Job Title\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4960,
+        940
+      ],
+      "id": "2b2e25ac-87d7-4705-8ae8-a0b902fa1da4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -4760,
+        940
+      ],
+      "id": "7c82290a-3cd0-4735-8dfd-89712d12cf40",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Google Sheets Trigger1').first().json;\n\nconst publishedAtMap = {\n  \"Past month\": \"r2592000\",\n  \"Past week\": \"r604800\",\n  \"Past 24 hours\": \"r86400\",\n  \"Any time\": \" \"\n};\n\nconst jobTypeMap = {\n  \"Full time\": \"F\",\n  \"Part time\": \"P\",\n  \"Contract based\": \"C\",\n  \"Internship\": \"I\",\n  \"Volunteer\": \"V\",\n  \"Temporary\": \"T\"\n};\n\nconst experienceMap = {\n  \"Internship\": \"1\",\n  \"Entry level\": \"2\",\n  \"Associate\": \"3\",\n  \"Mid-Senior\": \"4\",\n  \"Director\": \"5\"\n};\n\nconst workType = {\n  \"On-site\": \"1\",\n  \"Remote\": \"2\",\n  \"Hybrid\": \"3\"\n};\n\ninput.publishedCode = publishedAtMap[input[\"Published at\"]] || \" \";\ninput.jobTypeCode = jobTypeMap[input[\"Job Type\"]] || \" \";\ninput.experienceCode = experienceMap[input[\"Experience level\"]] || \" \";\ninput.workTypeCode = workType[input[\"On-site/Remote\"]] || \" \";\n\nreturn [\n  {\n    json: input\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4020,
+        780
+      ],
+      "id": "ab475187-6f1e-4edb-a9f2-15a2e5d66a91",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const input = item.json;\n\n  const output = {\n    // Constants: Always present\n    title: input[\"Job Title\"],\n    proxy: {\n      useApifyProxy: true,\n      apifyProxyGroups: [\"RESIDENTIAL\"]\n    }\n  };\n\n  // Optional fields – only add if present and non-empty\n  if (input[\"Location\"] && input[\"Location\"].trim()) {\n    output.location = input[\"Location\"];\n  }\n\n  if (input[\"publishedCode\"] && input[\"publishedCode\"].trim()) {\n    output.publishedAt = input[\"publishedCode\"];\n  }\n\n  if (input[\"Total Jobs\"] !== undefined && input[\"Total Jobs\"] !== null) {\n    output.rows = input[\"Total Jobs\"];\n  }\n\n  if (input[\"jobTypeCode\"] && input[\"jobTypeCode\"].trim()) {\n    output.jobType = input[\"jobTypeCode\"];\n  }\n\n  if (input[\"experienceCode\"] && input[\"experienceCode\"].trim()) {\n    output.experience = input[\"experienceCode\"];\n  }\n\n  if (input[\"workTypeCode\"] && input[\"workTypeCode\"].trim()) {\n    output.onSiteOrRemote = input[\"workTypeCode\"];\n  }\n\n  return { json: output };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3820,
+        780
+      ],
+      "id": "2772e465-773e-465e-a271-d2b412c78b58",
+      "name": "Code19"
+    },
+    {
+      "parameters": {
+        "keep": "lastItems"
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -5560,
+        940
+      ],
+      "id": "bf4f1d82-6b41-4896-b218-f23c1ecd5719",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input from Google Sheets\nconst emailFromSheets = $('Limit1').first().json[\"Email address\"];\nconst titleFromSheets = $('Limit1').first().json[\"Job Title\"];\n\n// Input items from the previous node\nconst data = items;\n\n// Flag to track if any match exists\nlet matchFound = false;\n\n// Check for a match in the input items\nfor (const item of data) {\n  const email = item.json.email;\n  const title = item.json[\"Job title\"];\n\n  if (email === emailFromSheets && title === titleFromSheets) {\n    matchFound = true;\n    break;\n  }\n}\n\n// Return result as an array of one object\nreturn [\n  {\n    json: {\n      match: matchFound\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4540,
+        940
+      ],
+      "id": "239ba302-e1f9-4c97-a2cd-ecf5c42469e3",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n\nreturn $input.all().slice(0,-1);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5140,
+        940
+      ],
+      "id": "bd6bd222-5c16-497d-a4d3-6fc3cf54218a",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6451325b-2b4b-4b66-9524-6e0cb5e06bc6",
+              "leftValue": "={{ $json.match }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -4320,
+        940
+      ],
+      "id": "00f19d09-92c5-430d-b60e-2b5bb6a2e6dd",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/bebity~linkedin-jobs-scraper/run-sync-get-dataset-items?",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer apify_api_j0AB4hyrp28v7vUL2Cy8AD445nJuye2smUVf"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ $input.first().json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3600,
+        780
+      ],
+      "id": "0bb7a872-fe20-4a10-8e53-64652f32c9a3",
+      "name": "linkedin scraper1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -840,
+        940
+      ],
+      "id": "4d1b29ac-6082-42e1-a615-16f9ff5466d0",
+      "name": "Wait1",
+      "webhookId": "ae373050-770c-43e3-a3ef-9d4492524a4a"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        260
+      ],
+      "id": "955f8f52-988e-40c1-ac9b-e12fba239b63",
+      "name": "Wait2",
+      "webhookId": "7abbe887-1c94-47ac-b981-44c21ee1a9eb"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($input.all().map(item => item.json)) }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "In the input below you will get a list in json format which contains details about a b2b lead. It contains details like \"email\", \"name\", \"position\", \"department\", etc. You can get a multiple people in that list ranging from 1 to 10, but need to only pass best 2 persons forward if the input has more than 2 people. Let me define what i mean by the best: These are all b2b leads whose company has posted about a job on their Linkedin, and thus me as an agency is targeting and pitching them my services so that they dont need to hire, instead use my services. So for that you need to filter the best emails for me like HR department, Managers, Recruiters, etc out of all the emails and only pass exact 2 emails if input has more than 2, otherwise if less than 2 then pass them as it is. And keep in mind to return only the email id which is inside the key \"value\" and nothing else as filtered output.  \n"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1160,
+        -320
+      ],
+      "id": "5d37b31e-2b4d-4eda-834b-6549de6a184a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama3-70b-8192",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -580
+      ],
+      "id": "01e305e3-6f28-4347-95ee-d7881a8adf43",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "1227vVzjuPKP1ahE",
+          "name": "Groq account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"value\": \"abcdef@gmail.com\",\n\t\"value\": \"abcdef@gmail.com\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1300,
+        -580
+      ],
+      "id": "353d59e1-36f9-493b-9b0e-3ea136189629",
+      "name": "Structured Output Parser",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const allContacts = $input.all().map(item => item.json);\n\nreturn [\n  {\n    json: {\n        allContacts: allContacts\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        960
+      ],
+      "id": "68c930ee-4b11-4790-8d02-def50f332bf3",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.output.allContacts;\n\nreturn input.map(item => ({ json: item }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        -660
+      ],
+      "id": "3a3e2b4e-5bfa-4aee-b5ce-2d3884980bd1",
+      "name": "Code5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.allContacts;\n\n// Priority categories and scores\nconst priorityCategories = [\n  {\n    name: \"HR\",\n    keywords: [\n      \"hr\", \"human resources\", \"recruiter\", \"recruitment\", \"talent acquisition\", \"people ops\", \"people operations\",\n      \"staffing\", \"recruitment lead\", \"recruitment head\", \"recruitment manager\", \"recruitment officer\",\n      \"recruitment executive\", \"recruitment specialist\", \"recruitment consultant\", \"talent specialist\", \"hrbp\"\n    ],\n    score: 5\n  },\n  {\n    name: \"Management\",\n    keywords: [\n      \"manager\", \"head\", \"lead\", \"director\", \"coordinator\", \"officer\", \"team lead\", \"operations manager\",\n      \"project manager\", \"business manager\", \"operations head\", \"group head\"\n    ],\n    score: 4\n  },\n  {\n    name: \"Sales\",\n    keywords: [\n      \"sales\", \"bd\", \"business development\", \"growth\", \"account executive\", \"account manager\", \"client relations\",\n      \"sales executive\", \"sales manager\", \"customer success\", \"client engagement\"\n    ],\n    score: 3\n  },\n  {\n    name: \"Executive\",\n    keywords: [\n      \"ceo\", \"coo\", \"founder\", \"co-founder\", \"chief\", \"president\", \"vp\", \"vice president\", \"principal\"\n    ],\n    score: 2\n  },\n  {\n    name: \"IT\",\n    keywords: [\n      \"developer\", \"engineer\", \"software\", \"backend\", \"frontend\", \"it\", \"tech\", \"fullstack\", \"programmer\",\n      \"technical\", \"technology\", \"data\", \"ai\", \"ml\", \"devops\", \"cyber\", \"cloud\"\n    ],\n    score: 1\n  }\n];\n\nconst genericEmailPatterns = [\"info@\", \"support@\", \"help@\", \"contact@\", \"hello@\", \"admin@\", \"team@\"];\n\n// Helper functions\nconst normalize = str => str?.toLowerCase()?.trim() || \"\";\nconst isGenericEmail = email => genericEmailPatterns.some(pattern => email.includes(pattern));\n\n// Scoring function\nfunction scoreContact(contact) {\n  const position = normalize(contact.position);\n  const department = normalize(contact.department);\n  const email = normalize(contact.value);\n  const type = normalize(contact.type);\n\n  let score = 0;\n\n  // Add priority scores\n  for (const category of priorityCategories) {\n    if (\n      category.keywords.some(keyword => position.includes(keyword) || department.includes(keyword))\n    ) {\n      score += category.score;\n      break; // Stop at the first matched high-priority category\n    }\n  }\n\n  // Personal emails get +1, generic get -2\n  if (type === \"personal\") score += 1;\n  if (isGenericEmail(email)) score -= 2;\n\n  return { ...contact, score };\n}\n\n// Process input\nconst scored = input.map(scoreContact);\nconst sorted = scored.sort((a, b) => b.score - a.score);\nconst topContacts = sorted.slice(0, 4);\n\n// Output\nreturn topContacts.map(c => ({ json: c }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        960
+      ],
+      "id": "bf90ecc1-3697-4ec6-b6d0-68e69e7152b8",
+      "name": "Code8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -500
+      ],
+      "id": "dd6a754e-bb58-44c4-93f2-03c34f05be3d",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json[\"user email\"] }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.content }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        920,
+        640
+      ],
+      "id": "ba0da65b-c2a3-4447-a47c-5878da55aa45",
+      "name": "Send Email",
+      "webhookId": "1e46004c-b3ec-4cef-8485-9518f670554c",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "smtp": {
+          "id": "Fzm6b0ra30HhU6ri",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        500,
+        620
+      ],
+      "id": "fd96f09d-0a8b-4850-9b6f-7498134b5125",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 11) + 5 }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        640
+      ],
+      "id": "0ff07894-5fce-4753-bd93-deb25ee93c35",
+      "name": "Wait3",
+      "webhookId": "5c257e52-4aa0-4c4e-971e-3a81c6086b2b"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1153163846,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit#gid=1153163846"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sent": "sent",
+            "email": "={{ $json.envelope.to }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1360,
+        420
+      ],
+      "id": "259d8781-1b14-4542-bbea-efb5da66e8de",
+      "name": "Google Sheets1",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iSQRtblSFRnw8muO",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7d20323f-bb68-45cd-ad40-2f30465f033e",
+              "leftValue": "={{ $json.rejected }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1140,
+        640
+      ],
+      "id": "6dfad372-ef97-46a0-8c1c-fc9b47749802",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1153163846,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit#gid=1153163846"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sent": "bounced"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent",
+              "displayName": "sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1380,
+        660
+      ],
+      "id": "c885ed83-368c-46e7-bd26-9fefecd422f6",
+      "name": "Google Sheets3",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "iSQRtblSFRnw8muO",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -5160,
+        1140
+      ],
+      "id": "178c8f13-51a6-49cf-9a48-efcfdc93e73e",
+      "name": "Wait4",
+      "webhookId": "d815fa28-465c-4955-b2fc-172d01f2dc51"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3420,
+        920
+      ],
+      "id": "e6d072c5-1087-4c73-963e-75a52c0d8556",
+      "name": "Wait5",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -3380,
+        1280
+      ],
+      "id": "0b443702-da2c-447e-951b-6dad03fb5e49",
+      "name": "Wait6",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1420,
+        1220
+      ],
+      "id": "4f3925d0-793f-4b5d-b09f-6979afe43347",
+      "name": "Wait7",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -740,
+        1220
+      ],
+      "id": "5a7dfc81-413a-45d2-a0d0-eaa3b52bb9b9",
+      "name": "Wait8",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1940,
+        480
+      ],
+      "id": "d6af59b4-cdb9-4f08-9ac0-f2b9c9724e8a",
+      "name": "Wait9",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        520
+      ],
+      "id": "cb14fc9d-91c2-4259-a09f-651ccde6970e",
+      "name": "Wait10",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        60
+      ],
+      "id": "d16d52ea-c2ef-4963-b8cc-d7c951505455",
+      "name": "Wait11",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1160,
+        880
+      ],
+      "id": "4dd4e67d-694b-44eb-8cd8-c4682373354b",
+      "name": "Wait12",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1640,
+        680
+      ],
+      "id": "c5386138-97f2-4266-ab83-691c80fee45d",
+      "name": "Wait13",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1660,
+        440
+      ],
+      "id": "013f53ac-9edf-42a0-9164-f47c9da11697",
+      "name": "Wait14",
+      "webhookId": "21a6e355-e1f1-4c1f-b3c6-a0a095bcd59e"
+    }
+  ],
+  "pinData": {
+    "Limit": [
+      {
+        "json": {
+          "id": "4198806862",
+          "publishedAt": "2025-03-09",
+          "salary": "",
+          "title": "Editor",
+          "jobUrl": "https://in.linkedin.com/jobs/view/editor-at-morningstar-norway-4198806862?trk=public_jobs_topcard-title",
+          "companyName": "Morningstar Norway",
+          "companyUrl": "https://www.linkedin.com/showcase/morningstar-norway/?trk=public_jobs_topcard-org-name",
+          "location": "Navi Mumbai, Maharashtra, India",
+          "postedTime": "4 weeks ago",
+          "applicationsCount": "33 applicants",
+          "description": "About The Company\n\nMorningstar DBRS offers independent credit opinions and thought leadership on corporate and sovereign entities, financial institutions, and project and structured finance transactions globally. Rating over 4,000 issuers and 60,000 securities, we are one of the four largest credit rating agencies in the world.\n\nMorningstar DBRS is one of the largest and fastest-growing businesses within Morningstar, and the Global Editorial, Publishing, and Media Relations team is critical to achieving this success.\n\nAbout The Position\n\nAs a member of the Editorial, Publishing, and Media Relations team in Mumbai, the Copy Editor will be responsible for editing and producing financial services research reports and other documents on a timely basis. This position reports to the Manager of Credit Operations in Mumbai.\n\nResponsibilities\n\n\n * Provide accurate, high-quality editing and proofreading of documents, including press releases, credit rating reports, industry research, and analytical methodologies, in a timely manner.\n * Maintain relationships with analysts, designers, management, and other stakeholders to produce and enhance content.\n * Ensure all deliverables comply with internal guidelines for style, conventions, and brand management.\n * Fulfill document requests and manage deadlines for several analysts and projects at once.\n * Participate in global team meetings as required.\n   \n   \n\nRequirements\n\n\n * Minimum five years of experience as an editor, preferably in the financial services industry or in business journalism.\n * Strong copy editing, organizational skills, and attention to detail.\n * Capacity to work independently, as well as part of a team.\n * Demonstrated ability to meet deadlines and work with minimal supervision.\n * Advanced expertise in Microsoft Word, Excel, PowerPoint, and Outlook is required.\n * Knowledge of Adobe InDesign and Illustrator is an asset.\n * University degree in a related field.\n * Preference is given to candidates with a basic understanding of the debt market, securitization, and the credit rating process.\n   \n   \n\nMorningstar DBRS is an equal opportunity employer.\n\nAbout Us\n\nMorningstar DBRS is a leading provider of independent rating services and opinions for corporate and sovereign entities, financial institutions, and project and structured finance instruments globally. Rating more than 4,000 issuers and 60,000 securities, it is one of the top four credit rating agencies in the world.\n\nMorningstar DBRS empowers investor success by bringing more transparency and a much-needed diversity of opinion in the credit rating industry. Our approach and size allow us to be nimble enough to respond to customers' needs in their local markets, but large enough to provide the necessary expertise and resources they require. Market innovators choose to work with us because of our agility, tech-forward approach, and exceptional customer service.\n\nMorningstar DBRS is the next generation of credit ratings.\n\nIf you receive and accept an offer from us, we require that personal and any related investments be disclosed confidentiality to our Compliance team (days vary by region). These investments will be reviewed to ensure they meet Code of Ethics requirements. If any conflicts of interest are identified, then you will be required to liquidate those holdings immediately. In addition, dependent on your department and location of work certain employee accounts must be held with an approved broker (for example all, U.S. employee accounts). If this applies and your account(s) are not with an approved broker, you will be required to move your holdings to an approved broker.\n\nMorningstar’s hybrid work environment gives you the opportunity to work remotely and collaborate in-person each week. While some positions are available as fully remote, we’ve found that we’re at our best when we’re purposely together on a regular basis, typically three days each week. A range of other benefits are also available to enhance flexibility as needs change. No matter where you are, you’ll have tools and resources to engage meaningfully with your global colleagues.\n\nR11_DBRSRatingsGmbHIndia DBRS Ratings GmbH, Branch India Legal Entity",
+          "contractType": "Full-time",
+          "experienceLevel": "Mid-Senior level",
+          "workType": "Marketing, Public Relations, and Writing/Editing",
+          "sector": "Financial Services",
+          "applyUrl": "https://careers.morningstar.com/us/en/job/REQ-050057/Editor",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          <strong>About The Company<br><br></strong>Morningstar DBRS offers independent credit opinions and thought leadership on corporate and sovereign entities, financial institutions, and project and structured finance transactions globally. Rating over 4,000 issuers and 60,000 securities, we are one of the four largest credit rating agencies in the world.<br><br>Morningstar DBRS is one of the largest and fastest-growing businesses within Morningstar, and the Global Editorial, Publishing, and Media Relations team is critical to achieving this success.<br><br><strong>About The Position<br><br></strong>As a member of the Editorial, Publishing, and Media Relations team in Mumbai, the Copy Editor will be responsible for editing and producing financial services research reports and other documents on a timely basis. This position reports to the Manager of Credit Operations in Mumbai.<br><br><strong>Responsibilities<br><br></strong><ul><li>Provide accurate, high-quality editing and proofreading of documents, including press releases, credit rating reports, industry research, and analytical methodologies, in a timely manner.</li><li>Maintain relationships with analysts, designers, management, and other stakeholders to produce and enhance content.</li><li>Ensure all deliverables comply with internal guidelines for style, conventions, and brand management.</li><li>Fulfill document requests and manage deadlines for several analysts and projects at once.</li><li>Participate in global team meetings as required.<br><br></li></ul><strong>Requirements<br><br></strong><ul><li>Minimum five years of experience as an editor, preferably in the financial services industry or in business journalism.</li><li>Strong copy editing, organizational skills, and attention to detail.</li><li>Capacity to work independently, as well as part of a team.</li><li>Demonstrated ability to meet deadlines and work with minimal supervision.</li><li>Advanced expertise in Microsoft Word, Excel, PowerPoint, and Outlook is required.</li><li>Knowledge of Adobe InDesign and Illustrator is an asset.</li><li>University degree in a related field.</li><li>Preference is given to candidates with a basic understanding of the debt market, securitization, and the credit rating process.<br><br></li></ul>Morningstar DBRS is an equal opportunity employer.<br><br><strong>About Us<br><br></strong>Morningstar DBRS is a leading provider of independent rating services and opinions for corporate and sovereign entities, financial institutions, and project and structured finance instruments globally. Rating more than 4,000 issuers and 60,000 securities, it is one of the top four credit rating agencies in the world.<br><br>Morningstar DBRS empowers investor success by bringing more transparency and a much-needed diversity of opinion in the credit rating industry. Our approach and size allow us to be nimble enough to respond to customers&apos; needs in their local markets, but large enough to provide the necessary expertise and resources they require. Market innovators choose to work with us because of our agility, tech-forward approach, and exceptional customer service.<br><br>Morningstar DBRS is the next generation of credit ratings.<br><br>If you receive and accept an offer from us, we require that personal and any related investments be disclosed confidentiality to our Compliance team (days vary by region). These investments will be reviewed to ensure they meet Code of Ethics requirements. If any conflicts of interest are identified, then you will be required to liquidate those holdings immediately. In addition, dependent on your department and location of work certain employee accounts must be held with an approved broker (for example all, U.S. employee accounts). If this applies and your account(s) are not with an approved broker, you will be required to move your holdings to an approved broker.<br><br>Morningstar&#x2019;s hybrid work environment gives you the opportunity to work remotely and collaborate in-person each week. While some positions are available as fully remote, we&#x2019;ve found that we&#x2019;re at our best when we&#x2019;re purposely together on a regular basis, typically three days each week. A range of other benefits are also available to enhance flexibility as needs change. No matter where you are, you&#x2019;ll have tools and resources to engage meaningfully with your global colleagues.<br><br>R11_DBRSRatingsGmbHIndia DBRS Ratings GmbH, Branch India Legal Entity\n        ",
+          "companyId": "9242012",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4186238252",
+          "publishedAt": "2025-03-19",
+          "salary": "",
+          "title": "Mid-Motion Graphic Designer",
+          "jobUrl": "https://in.linkedin.com/jobs/view/mid-motion-graphic-designer-at-oliver-agency-4186238252?trk=public_jobs_topcard-title",
+          "companyName": "OLIVER Agency",
+          "companyUrl": "https://uk.linkedin.com/company/oliver-agency?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai Metropolitan Region",
+          "postedTime": "2 weeks ago",
+          "applicationsCount": "Be among the first 25 applicants",
+          "description": "Established in 2004, OLIVER is the world’s first and only specialist in designing, building, and running bespoke in-house agencies and marketing ecosystems for brands. We partner with over 300 clients in 40+ countries and counting. Our unique model drives creativity and efficiency, allowing us to deliver tailored solutions that resonate deeply with audiences.\n\nAs a part of The Brandtech Group, we're at the forefront of leveraging cutting-edge AI technology to revolutionise how we create and deliver work. Our AI solutions enhance efficiency, spark creativity, and drive insightful decision-making, empowering our teams to produce innovative and impactful results.\n\nRole: Mid-Motion Graphic Designer\n\nLocation: Mumbai, India\n\nAbout the role:\n\nThe Motion Graphic Designer is responsible for designing and creating digital content, interactive programs and videos for Beauty/Lifestyle brands. With a thorough understanding of user centred design and how different digital channels present different challenges and opportunities the Multimedia Designer is skilled at combining text, audio, animation, photography, and video to create engaging and impactful content. Passion for and inquisitive about AI and new technologies. Understanding and knowledge of AI tools is beneficial, but ability to learn and digest benefits and features of AI tools is critical.\n\nThe Motion Graphic Designer focus on moving motion animation for each of the digital asset to enhance the storytelling based on the creative idea of the Lead Creator/Digital Designer.\n\nWhat you will be doing:\n\n\n * Responsible for the successful delivery of multimedia content across a range of platforms\n * Thorough understanding user centred design and how different digital channels present different challenges and opportunities for each asset\n * Ability to conceptualise and develop the animation for the moving motion asset\n * Ability to input at early project stages, effectively communicating technical, creative, and production issues and solutions both internally and to the client\n * Strong design skills\n * Thorough understanding of the Adobe Master Collection including After Effects\n * Strong typographic skills\n * Identify areas to develop multimedia content\n   \n   \n\nWhat you need to be great in this role:\n\n\n * Someone who is immersed in digital culture and involved in the ideation process as well as being able to utilise the Adobe Creative Suite software with a thorough understanding of storyboarding, video capture, editing and distribution of digital video.\n * Typically 3 years proven track record in a digital media design background\n * Experience with beauty or skincare product digital advertising is a bonus\n * Confidence and comfortable working in a fast-paced, changing client environment\n * A creative, innovative can-do approach.\n * A professional attitude and flexible working approach.\n * The aptitude to learn new software and programmes efficiently and effectively\n * Self-motivated, working with little supervision\n * Collaborative team player, open minded – non political\n * Discrete about all confidential and personal information\n * Driven, proactive, helpful, and enthusiastic team player\n   \n   \n\nReq ID: 12585\n\nOur values shape everything we do:\n\nBe Ambitious to succeed \n\nBe Imaginative to push the boundaries of what’s possible \n\nBe Inspirational to do groundbreaking work \n\nBe always learning and listening to understand \n\nBe Results-focused  to exceed expectations \n\nBe actively pro-inclusive and anti-racist across our community, clients and creations \n\nOLIVER, a part of the Brandtech Group, is an equal opportunity employer committed to creating an inclusive working environment where all employees are encouraged to reach their full potential, and individual differences are valued and respected. All applicants shall be considered for employment without regard to race, ethnicity, religion, gender, sexual orientation, gender identity, age, neurodivergence, disability status, or any other characteristic protected by local laws. \n\n OLIVER has set ambitious environmental goals around sustainability, with science-based emissions reduction targets. Collectively, we work towards our mission, embedding sustainability into every department and through every stage of the project lifecycle.\n\n",
+          "contractType": "Full-time",
+          "experienceLevel": "Entry level",
+          "workType": "Design, Art/Creative, and Information Technology",
+          "sector": "Advertising Services",
+          "applyUrl": "https://job-boards.greenhouse.io/oliverseapac/jobs/6678120?gh_src=fa7a412a1us",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          Established in 2004, <strong>OLIVER</strong> is the world&#x2019;s first and only specialist in designing, building, and running bespoke in-house agencies and marketing ecosystems for brands. We partner with over 300 clients in 40+ countries and counting. Our unique model drives creativity and efficiency, allowing us to deliver tailored solutions that resonate deeply with audiences.<br><br>As a part of <strong>The Brandtech Group</strong>, we&apos;re at the forefront of leveraging cutting-edge AI technology to revolutionise how we create and deliver work. Our <strong>AI solutions</strong> enhance efficiency, spark creativity, and drive insightful decision-making, empowering our teams to produce innovative and impactful results.<br><br><strong>Role: </strong>Mid-Motion Graphic Designer<br><br><strong>Location: </strong>Mumbai, India<br><br><strong>About the role:<br><br></strong>The Motion Graphic Designer is responsible for designing and creating digital content, interactive programs and videos for Beauty/Lifestyle brands. With a thorough understanding of user centred design and how different digital channels present different challenges and opportunities the Multimedia Designer is skilled at combining text, audio, animation, photography, and video to create engaging and impactful content. Passion for and inquisitive about AI and new technologies. Understanding and knowledge of AI tools is beneficial, but ability to learn and digest benefits and features of AI tools is critical.<br><br>The Motion Graphic Designer focus on moving motion animation for each of the digital asset to enhance the storytelling based on the creative idea of the Lead Creator/Digital Designer.<br><br><strong>What you will be doing:<br><br></strong><ul><li>Responsible for the successful delivery of multimedia content across a range of platforms </li><li>Thorough understanding user centred design and how different digital channels present different challenges and opportunities for each asset </li><li>Ability to conceptualise and develop the animation for the moving motion asset </li><li>Ability to input at early project stages, effectively communicating technical, creative, and production issues and solutions both internally and to the client </li><li>Strong design skills </li><li>Thorough understanding of the Adobe Master Collection including After Effects </li><li>Strong typographic skills </li><li>Identify areas to develop multimedia content <br><br></li></ul><strong>What you need to be great in this role:<br><br></strong><ul><li>Someone who is immersed in digital culture and involved in the ideation process as well as being able to utilise the Adobe Creative Suite software with a thorough understanding of storyboarding, video capture, editing and distribution of digital video. </li><li>Typically 3 years proven track record in a digital media design background </li><li>Experience with beauty or skincare product digital advertising is a bonus </li><li>Confidence and comfortable working in a fast-paced, changing client environment </li><li>A creative, innovative can-do approach. </li><li>A professional attitude and flexible working approach. </li><li>The aptitude to learn new software and programmes efficiently and effectively </li><li>Self-motivated, working with little supervision </li><li>Collaborative team player, open minded &#x2013; non political </li><li>Discrete about all confidential and personal information </li><li>Driven, proactive, helpful, and enthusiastic team player <br><br></li></ul>Req ID: 12585<br><br>Our values shape everything we do:<br><br>Be<strong>&#x202f;Ambitious</strong>&#x202f;to succeed&#x202f;<br><br>Be&#x202f;<strong>Imaginative</strong>&#x202f;to push the boundaries of what&#x2019;s possible&#x202f;<br><br>Be&#x202f;<strong>Inspirational</strong>&#x202f;to do groundbreaking work&#x202f;<br><br>Be&#x202f;<strong>always learning&#x202f;and listening</strong> to understand&#x202f;<br><br>Be&#x202f;<strong>Results-focused&#x202f;</strong> to exceed expectations&#x202f;<br><br>Be <strong>actively pro-inclusive and anti-racist</strong> across our community, clients and creations&#x202f;<br><br><em>OLIVER,</em> <em>a part of the Brandtech Group, is an equal opportunity employer committed to creating an inclusive working environment where all employees are encouraged to reach their full potential, and individual differences are valued and respected. All applicants shall be considered for employment without regard to race, ethnicity, religion, gender, sexual orientation, gender identity, age, neurodivergence, disability status, or any other characteristic protected by local laws.&#x202f; <br><br></em><em>&#x202f;OLIVER has set ambitious environmental goals around sustainability, with science-based emissions reduction targets. Collectively, we work towards our mission,&#x202f;embedding sustainability into every department and through every stage of the project lifecycle.<br><br></em>\n        ",
+          "companyId": "2584122",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4190019419",
+          "publishedAt": "2025-03-21",
+          "salary": "",
+          "title": "Operations Internship in Mumbai, Delhi, Dubai",
+          "jobUrl": "https://in.linkedin.com/jobs/view/operations-internship-in-mumbai-delhi-dubai-at-creatorshala-complay-online-media-llc-4190019419?trk=public_jobs_topcard-title",
+          "companyName": "CREATORSHALA(Complay Online Media LLC)",
+          "companyUrl": "https://ae.linkedin.com/company/complaydigital?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai Metropolitan Region",
+          "postedTime": "2 weeks ago",
+          "applicationsCount": "Be among the first 25 applicants",
+          "description": "Selected Intern's Day-to-day Responsibilities Include\n\n\n * Backend e-commerce operations work\n * Audting of orders\n * Social media analytics auditing\n   \n   \n\nAbout Company: Creatorshala was started in 2020, basically, it was started for music distribution, and now it's both for video content and music distribution. Moreover, it serves more than 50 countries for the same all across India and the world. If you are a blogger, influencer, YouTuber, musician, singer, producer, or any type of creator, we are the most suitable platform for you, also it has its content sharing cum influencer marketing platform named Creatorshala. As from Creatorshala, we make content for bloggers and influencers in fashion, beauty, lifestyle, food, travel, lifestyle, and luxury categories. We help creators to work with the right brands with which they want to work.",
+          "contractType": "Internship",
+          "experienceLevel": "Internship",
+          "workType": "Management, Product Management, and Other",
+          "sector": "Advertising Services",
+          "applyUrl": "https://internshala.com/internship/detail/operations-internship-in-multiple-locations-at-creatorshala1742476122/?utm_campaign=linkedin_d2002&utm_source=Linkedin_Partnership",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          <strong>Selected Intern&apos;s Day-to-day Responsibilities Include<br><br></strong><ul><li> Backend e-commerce operations work</li><li> Audting of orders</li><li> Social media analytics auditing<br><br></li></ul>About Company: Creatorshala was started in 2020, basically, it was started for music distribution, and now it&apos;s both for video content and music distribution. Moreover, it serves more than 50 countries for the same all across India and the world. If you are a blogger, influencer, YouTuber, musician, singer, producer, or any type of creator, we are the most suitable platform for you, also it has its content sharing cum influencer marketing platform named Creatorshala. As from Creatorshala, we make content for bloggers and influencers in fashion, beauty, lifestyle, food, travel, lifestyle, and luxury categories. We help creators to work with the right brands with which they want to work.\n        ",
+          "companyId": "13259331",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4200107048",
+          "publishedAt": "2025-04-03",
+          "salary": "",
+          "title": "Brand Partnership Manager",
+          "jobUrl": "https://in.linkedin.com/jobs/view/brand-partnership-manager-at-vidunit-4200107048?trk=public_jobs_topcard-title",
+          "companyName": "VidUnit",
+          "companyUrl": "https://in.linkedin.com/company/vidunit-media?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai, Maharashtra, India",
+          "postedTime": "4 days ago",
+          "applicationsCount": "75 applicants",
+          "description": "Designation: Manager\n\nDepartment: Brand Partnerships\n\nCompany: VidUnit Media Pvt Ltd\n\nReports to: CEO\n\nLocation: Mumbai\n\n\n\n\nAbout Us:\n\nVidUnit: It’s a data driven influencer, publisher and brand management platform founded by Ex Director of Alibaba. Please visit https://vidunit.com/ for more details.\n\nPunToon Kids: Its of one of the biggest Indianized Kids community on YouTube in India. Available in 9 languages and reach 100 M audience every month. https://www.youtube.com/@PunToonKids\n\n\n\n\nJob overview:\n\nWe are looking for a dynamic and results-driven professional to acquire new brands for VidUnit’s influencer and content marketing services and secure brand sponsorships for the PunToon Kids YouTube channel network. The role involves lead generation, client meetings, negotiations, and achieving sales targets while developing and managing influencer-driven campaigns.\n\n\n\n\nKey Responsibilities:\n\n*Drive revenue for PunToon Kids by securing partnerships for original content with brands and agencies.\n\n*Acquiring new brands for influencer/ content marketing services of VidUnit and new Lead generation, client meeting, negotiations and achieving the desired targets.\n\n*Working closely with clients, ad agencies, creative agencies to offer best creators driven marketing solutions, content strategy and production services.\n\n*Development of new and existing leads for influencer/creator driven campaigns.\n\n*Building relationships with advertising and creative agencies.\n\n\n\n\nDesired Skills and Experience:\n\n*Detailed understanding of influencer market.\n\n*Good working relations with digital media agencies.\n\n*Minimum 4-6 years of experience in Digital Media Sales and minimum 1 years in influencer domain/content marketing sales.\n\n*Strong relationships with brand managers, brand owners, and agencies.\n\n\n\n\nPlease fill out the form below to\n\nhttps://docs.google.com/forms/d/e/1FAIpQLSfwf8MkEAilZXRQP01MWpzgSWt89M6gmOblnmL_fDvolZzXkg/viewform?usp=header",
+          "contractType": "Full-time",
+          "experienceLevel": "Mid-Senior level",
+          "workType": "Business Development, Sales, and Marketing",
+          "sector": "Broadcast Media Production and Distribution",
+          "applyType": "EASY_APPLY",
+          "applyUrl": "https://in.linkedin.com/jobs/view/brand-partnership-manager-at-vidunit-4200107048?trk=public_jobs_topcard-title",
+          "descriptionHtml": "\n          <p>Designation: Manager</p><p>Department: Brand Partnerships</p><p>Company: VidUnit Media Pvt Ltd</p><p>Reports to: CEO</p><p>Location: Mumbai</p><p><br></p><p><strong>About Us:</strong></p><p><strong>VidUni</strong>t: It&#x2019;s a data driven influencer, publisher and brand management platform founded by Ex Director of Alibaba. Please visit https://vidunit.com/ for more details.</p><p><strong>PunToon Kid</strong>s: Its of one of the biggest Indianized Kids community on YouTube in India. Available in 9 languages and reach 100 M audience every month. https://www.youtube.com/@PunToonKids</p><p><br></p><p><strong>Job overview:</strong></p><p>We are looking for a dynamic and results-driven professional to acquire new brands for VidUnit&#x2019;s influencer and content marketing services and secure brand sponsorships for the PunToon Kids YouTube channel network. The role involves lead generation, client meetings, negotiations, and achieving sales targets while developing and managing influencer-driven campaigns.</p><p><br></p><p><strong>Key Responsibilities:</strong></p><p>*Drive revenue for PunToon Kids by securing partnerships for original content with brands and agencies.</p><p>*Acquiring new brands for influencer/ content marketing services of VidUnit and new Lead generation, client meeting, negotiations and achieving the desired targets.</p><p>*Working closely with clients, ad agencies, creative agencies to offer best creators driven marketing solutions, content strategy and production services.</p><p>*Development of new and existing leads for influencer/creator driven campaigns.</p><p>*Building relationships with advertising and creative agencies.</p><p><br></p><p><strong>Desired Skills and Experience:</strong></p><p>*Detailed understanding of influencer market.</p><p>*Good working relations with digital media agencies.</p><p>*Minimum 4-6 years of experience in Digital Media Sales and minimum 1 years in influencer domain/content marketing sales.</p><p>*Strong relationships with brand managers, brand owners, and agencies.</p><p><br></p><p><strong>Please fill out the form below to</strong></p><p>https://docs.google.com/forms/d/e/1FAIpQLSfwf8MkEAilZXRQP01MWpzgSWt89M6gmOblnmL_fDvolZzXkg/viewform?usp=header</p>\n        ",
+          "companyId": "14430701",
+          "benefits": "",
+          "posterProfileUrl": "https://in.linkedin.com/in/sejal-solanki-8627b312",
+          "posterFullName": "Sejal Solanki"
+        }
+      },
+      {
+        "json": {
+          "id": "4192705363",
+          "publishedAt": "2025-03-27",
+          "salary": "",
+          "title": "Marketing & Communications Manager",
+          "jobUrl": "https://in.linkedin.com/jobs/view/marketing-communications-manager-at-torq-commodities-4192705363?trk=public_jobs_topcard-title",
+          "companyName": "Torq Commodities",
+          "companyUrl": "https://ch.linkedin.com/company/torq-commodities?trk=public_jobs_topcard-org-name",
+          "location": "Thane, Maharashtra, India",
+          "postedTime": "1 week ago",
+          "applicationsCount": "Over 200 applicants",
+          "description": "About You\n\n\n * You are not just a marketer—you are a growth hacker, trend-spotter, and out-of-the-box thinker rolled into one. You eat conventional marketing playbooks for breakfast and replace them with bold, disruptive strategies . You don’t just follow trends—you set them .\n * You have spent the last few years reinventing B2B marketing —maybe with guerrilla campaigns, meme-worthy LinkedIn posts, or data-driven experiments that made competitors go “Wait, why didn’t we think of that?”\n * Last but not the least, you should be someone who is chronically online (but in a productive way) and allergic to boring content.\n   \n   \n\nWhat You Will Do\n\n\n * Reimagine & Reinvent: Torq’s marketing isn’t broken—but why settle for \"good\" when we can be unforgettable? You will challenge the status quo and inject fresh, bold ideas into everything we do.\n * Trend Hunter: You will stalk the market (in a non-creepy way) to spot what’s next—be it AI-powered engagement, viral B2B storytelling, or even Instagram for commodities (hey, why not?).\n * Unconventional Storyteller: You won’t just write blogs—you will craft content that slaps. Think snappy LinkedIn hooks, edgy thought leadership, and campaigns that make our audience go “Damn, Torq gets it.”\n * Competitor FOMO Creator: You will make sure Torq isn’t just keeping up—we are leading the charge. If our competitors copy us? Good. Mission accomplished.\n   \n   \n\nThis isn't your typical \"post on LinkedIn 3x a week\" role. You will be:\n\n\n * Bringing fresh, borderline chaotic energy to our strategy\n\n * Researching industry trends before they're trending\n * Creating marketing that doesn't feel like marketing\n * Making strategic moves that have our competitors taking screenshots\n   \n   \n\nWho You Are\n\n✔ A Strategic Rebel – You don’t just execute; you redefine the game .\n\n✔ Data-Lover + Creative Genius – You back wild ideas with cold, hard analytics .\n\n✔ Obsessed with Growth – You live for “What’s next?” and “How can we do this better?”\n\n✔ Tech-Savvy – Because if you are not leveraging AI, automation, and weirdly effective hacks, are you even marketing?\n\nThe green flags we are looking for\n\n\n * You have got receipts (case studies) from previous B2B work that actually slapped\n\n * You can explain complex ideas without putting people to sleep\n * You are obsessed with what makes things go viral, even in \"boring\" industries\n * You send \"you have to see this\" messages to your group chats about clever marketing campaigns\n * You know the difference between genuinely innovative and just weird for weird’ s sake\n   \n   \n\nDon’t Apply If\n\n\n * You need someone to hand you a to-do list every morning.\n * You are only here for the salary.\n * You believe “this is how we’ve always done it” is a valid reason.\n   \n   \n\nRequirements\n\n\n * Experience: 2-3 years of breaking norms in B2B marketing, where you didn’t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!).\n * Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that\n * Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition\n   \n   \n\nWhy Torq?\n\nNo Red Tape, Just Green Lights – Pitch crazy ideas? We will say, “Try it.”\n\nOwnership & Impact – This isn’t a support role—you will shape our voice and strategy.\n\nWork with a High-Energy Team – We are ambitious, fast, and a little quirky (okay, a lot).\n\nReady to Break the Mold?\n\nIf you are nodding along like “This was made for me” , shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it’s weirdly genius). Let’s make marketing that doesn’t just talk—it slaps .",
+          "contractType": "Full-time",
+          "experienceLevel": "Mid-Senior level",
+          "workType": "Marketing and Sales",
+          "sector": "Wholesale Import and Export",
+          "applyType": "EASY_APPLY",
+          "applyUrl": "https://in.linkedin.com/jobs/view/marketing-communications-manager-at-torq-commodities-4192705363?trk=public_jobs_topcard-title",
+          "descriptionHtml": "\n          <strong>About You<br><br></strong><ul><li> You are not just a marketer&#x2014;you are a growth hacker, trend-spotter, and out-of-the-box thinker rolled into one. You eat conventional marketing playbooks for breakfast and replace them with bold, disruptive strategies . You don&#x2019;t just follow trends&#x2014;you set them . </li><li> You have spent the last few years reinventing B2B marketing &#x2014;maybe with guerrilla campaigns, meme-worthy LinkedIn posts, or data-driven experiments that made competitors go &#x201c;Wait, why didn&#x2019;t we think of that?&#x201d; </li><li> Last but not the least, you should be someone who is chronically online (but in a productive way) and allergic to boring content. <br><br></li></ul><strong>What You Will Do<br><br></strong><ul><li> Reimagine &amp; Reinvent: Torq&#x2019;s marketing isn&#x2019;t broken&#x2014;but why settle for &quot;good&quot; when we can be unforgettable? You will challenge the status quo and inject fresh, bold ideas into everything we do. </li><li> Trend Hunter: You will stalk the market (in a non-creepy way) to spot what&#x2019;s next&#x2014;be it AI-powered engagement, viral B2B storytelling, or even Instagram for commodities (hey, why not?). </li><li> Unconventional Storyteller: You won&#x2019;t just write blogs&#x2014;you will craft content that slaps. Think snappy LinkedIn hooks, edgy thought leadership, and campaigns that make our audience go &#x201c;Damn, Torq gets it.&#x201d; </li><li> Competitor FOMO Creator: You will make sure Torq isn&#x2019;t just keeping up&#x2014;we are leading the charge. If our competitors copy us? Good. Mission accomplished. <br><br></li></ul>This isn&apos;t your typical <strong> &quot;post on LinkedIn 3x a week&quot; </strong> role. You will be:<br><br><ul><li> Bringing fresh, borderline chaotic energy to our strategy</li></ul><ul><li> Researching industry trends before they&apos;re trending </li><li> Creating marketing that doesn&apos;t feel like marketing </li><li> Making strategic moves that have our competitors taking screenshots <br><br></li></ul><strong>Who You Are<br><br></strong>&#x2714; <strong> A Strategic Rebel </strong> &#x2013; You don&#x2019;t just execute; you <strong> redefine the game </strong> .<br><br>&#x2714; <strong> Data-Lover + Creative Genius </strong> &#x2013; You back wild ideas with <strong> cold, hard analytics </strong> .<br><br>&#x2714; <strong> Obsessed with Growth </strong> &#x2013; You live for <strong> &#x201c;What&#x2019;s next?&#x201d; </strong> and <strong> &#x201c;How can we do this better?&#x201d; <br><br></strong>&#x2714; <strong> Tech-Savvy </strong> &#x2013; Because if you are not leveraging AI, automation, and weirdly effective hacks, are you even marketing?<br><br><strong> The green flags we are looking for <br><br></strong><ul><li> You have got receipts (case studies) from previous B2B work that actually slapped</li></ul><ul><li> You can explain complex ideas without putting people to sleep </li><li> You are obsessed with what makes things go viral, even in &quot;boring&quot; industries </li><li> You send &quot;you have to see this&quot; messages to your group chats about clever marketing campaigns </li><li> You know the difference between genuinely innovative and just weird for weird&#x2019; s sake <br><br></li></ul><strong>Don&#x2019;t Apply If<br><br></strong><ul><li> You need someone to hand you a to-do list every morning. </li><li> You are only here for the salary. </li><li> You believe &#x201c;this is how we&#x2019;ve always done it&#x201d; is a valid reason. <br><br></li></ul><strong>Requirements<br><br></strong><ul><li> Experience: 2-3 years of breaking norms in B2B marketing, where you didn&#x2019;t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!). </li><li> Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that </li><li> Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition <br><br></li></ul>Why Torq?<br><br>No Red Tape, Just Green Lights &#x2013; Pitch crazy ideas? We will say, &#x201c;Try it.&#x201d;<br><br>Ownership &amp; Impact &#x2013; This isn&#x2019;t a support role&#x2014;you will shape our voice and strategy.<br><br>Work with a High-Energy Team &#x2013; We are ambitious, fast, and a little quirky (okay, a lot).<br><br>Ready to Break the Mold?<br><br>If you are nodding along like <em> &#x201c;This was made for me&#x201d; </em> , shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it&#x2019;s weirdly genius). Let&#x2019;s make marketing that doesn&#x2019;t just talk&#x2014;it <em> slaps </em> .\n        ",
+          "companyId": "31361372",
+          "benefits": "",
+          "posterProfileUrl": "https://in.linkedin.com/in/komal-pandey-2416398a",
+          "posterFullName": "Komal Pandey"
+        }
+      },
+      {
+        "json": {
+          "id": "3711549508",
+          "publishedAt": "2025-03-30",
+          "salary": "",
+          "title": "Analyst",
+          "jobUrl": "https://in.linkedin.com/jobs/view/analyst-at-eclerx-3711549508?trk=public_jobs_topcard-title",
+          "companyName": "eClerx",
+          "companyUrl": "https://in.linkedin.com/company/eclerx?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai, Maharashtra, India",
+          "postedTime": "1 week ago",
+          "applicationsCount": "Over 200 applicants",
+          "description": "Job Description\n\nWe are looking for skilled web content creator who has experience of working on web content management tools such as Amazon Vendor Central. The candidate will be responsible for developing and designing front-end web pages using 3rd party vendor tools and working alongside graphic designers for web design among other duties. Knowledge of Amazon Vendor Central Tool will be an advantage. The candidate will be required to see out a project from conception to final product, requiring good organizational skills, and attention to detail.\n\nThe ideal candidate must possess strong verbal and written communication skills, with an ability to listen and comprehend information and share it with all the key stakeholders. She/he must be able to work collaboratively with teams to execute tasks within defined timeframes while maintaining high-quality standards and superior service levels.\n\nAnalyst Role And Responsibilities\n\n\n * Develop content on web pages as per defined guidelines and client requirements\n * Work with graphic designers for creating assets like images, banners, videos, documents etc for designing web pages\n * Provide QA support for peers to maintain high quality of content on web pages\n * Support request management as per priorities coming from client\n * Coordinate with multiple stakeholders/teams to understand project requirements\n * Coordinate with team members and managing multiple requests/projects simultaneously\n * Maintain all data and reports related to requests/projects\n   \n   \n\nQualification\n\n\n * BCA, BBA, B.Com with any IT certification/course related to Website Management, Content Management, B.Sc (Physics/Chemistry/Maths/IT/Computer Science)\n * Any Graduate with 6 months to 1 year of experience Web Content Management (Front-End).\n   \n   \n\nTechnical And Functional Skills\n\n\n * Maintain and update content of website using 3rd party tools\n * Working experience of Amazon Vendor Central tool or similar tool will be an advantage\n * Excellent communication and interpersonal skills\n * Ability to quickly and efficiently assimilate process knowledge\n * Professional in conduct/behaviour, appearance and communication\n * Must be reliable in terms of attendance and timing\n * Flexible for US/Europe Shifts\n * Basic Knowledge of excel for reporting\n * Good documentation skills\n   \n   \n\nAbout Us\n\nAt eClerx, we serve some of the largest global companies – 50 of the Fortune 500 clients. Our clients call upon us to solve their most complex problems, and deliver transformative insights. Across roles and levels, you get the opportunity to build expertise, challenge the status quo, think bolder, and help our clients seize value\n\nAbout The Team\n\neClerx is a global leader in productized services, bringing together people, technology and domain expertise to amplify business results. Our mission is to set the benchmark for client service and success in our industry. Our vision is to be the innovation partner of choice for technology, data analytics and process management services. Since our inception in 2000, we've partnered with top companies across various industries, including financial services, telecommunications, retail, and high-tech. Our innovative solutions and domain expertise help businesses optimize operations, improve efficiency, and drive growth. With over 18,000 employees worldwide, eClerx is dedicated to delivering excellence through smart automation and data-driven insights. At eClerx, we believe in nurturing talent and providing hands-on experience.\n\neClerx is an Equal Opportunity Employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, national origin, disability or protected veteran status, or any other legally protected basis, per applicable law.",
+          "contractType": "Full-time",
+          "experienceLevel": "Entry level",
+          "workType": "Business Development and Sales",
+          "sector": "IT Services and IT Consulting",
+          "applyUrl": "https://fa-ewji-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/job/72165/?utm_medium=jobshare",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          <strong>Job Description<br><br></strong>We are looking for skilled web content creator who has experience of working on web content management tools such as Amazon Vendor Central. The candidate will be responsible for developing and designing front-end web pages using 3rd party vendor tools and working alongside graphic designers for web design among other duties. Knowledge of Amazon Vendor Central Tool will be an advantage. The candidate will be required to see out a project from conception to final product, requiring good organizational skills, and attention to detail.<br><br>The ideal candidate must possess strong verbal and written communication skills, with an ability to listen and comprehend information and share it with all the key stakeholders. She/he must be able to work collaboratively with teams to execute tasks within defined timeframes while maintaining high-quality standards and superior service levels.<br><br><strong>Analyst Role And Responsibilities<br><br></strong><ul><li>Develop content on web pages as per defined guidelines and client requirements</li><li>Work with graphic designers for creating assets like images, banners, videos, documents etc for designing web pages</li><li>Provide QA support for peers to maintain high quality of content on web pages</li><li>Support request management as per priorities coming from client</li><li>Coordinate with multiple stakeholders/teams to understand project requirements </li><li>Coordinate with team members and managing multiple requests/projects simultaneously</li><li>Maintain all data and reports related to requests/projects <br><br></li></ul><strong>Qualification<br><br></strong><ul><li>BCA, BBA, B.Com with any IT certification/course related to Website Management, Content Management, B.Sc (Physics/Chemistry/Maths/IT/Computer Science)</li><li>Any Graduate with 6 months to 1 year of experience Web Content Management (Front-End).<br><br></li></ul><strong>Technical And Functional Skills<br><br></strong><ul><li>Maintain and update content of website using 3rd party tools</li><li>Working experience of Amazon Vendor Central tool or similar tool will be an advantage</li><li>Excellent communication and interpersonal skills</li><li>Ability to quickly and efficiently assimilate process knowledge</li><li>Professional in conduct/behaviour, appearance and communication</li><li>Must be reliable in terms of attendance and timing</li><li>Flexible for US/Europe Shifts</li><li>Basic Knowledge of excel for reporting</li><li>Good documentation skills<br><br></li></ul><strong>About Us<br><br></strong>At eClerx, we serve some of the largest global companies &#x2013; 50 of the Fortune 500 clients. Our clients call upon us to solve their most complex problems, and deliver transformative insights. Across roles and levels, you get the opportunity to build expertise, challenge the status quo, think bolder, and help our clients seize value<br><br><strong>About The Team<br><br></strong>eClerx is a global leader in productized services, bringing together people, technology and domain expertise to amplify business results. Our mission is to set the benchmark for client service and success in our industry. Our vision is to be the innovation partner of choice for technology, data analytics and process management services. Since our inception in 2000, we&apos;ve partnered with top companies across various industries, including financial services, telecommunications, retail, and high-tech. Our innovative solutions and domain expertise help businesses optimize operations, improve efficiency, and drive growth. With over 18,000 employees worldwide, eClerx is dedicated to delivering excellence through smart automation and data-driven insights. At eClerx, we believe in nurturing talent and providing hands-on experience.<br><br>eClerx is an Equal Opportunity Employer. All qualified applicants will receive consideration for employment without regard to race, color, religion, sex, national origin, disability or protected veteran status, or any other legally protected basis, per applicable law.\n        ",
+          "companyId": "17312",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4202374845",
+          "publishedAt": "2025-04-07",
+          "salary": "",
+          "title": "Influencer",
+          "jobUrl": "https://in.linkedin.com/jobs/view/influencer-at-the-black-box-co-4202374845?trk=public_jobs_topcard-title",
+          "companyName": "The Black Box Co.",
+          "companyUrl": "https://in.linkedin.com/company/the-black-box-co?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai, Maharashtra, India",
+          "postedTime": "9 hours ago",
+          "applicationsCount": "67 applicants",
+          "description": "Job Description: We are looking for a creative and outgoing individual who is passionate about social media content creation. As a Reel Creator and Social Media Influencer, you will be responsible for producing engaging and visually appealing content for our various social media platforms, with a primary focus on Instagram Reels.\n\nResponsibilities:\n\n * Create high-quality, engaging Instagram Reels that align with our brand identity and marketing objectives.\n * Plan, and execute creative ideas for Reels content, including but not limited to product showcases, tutorials, lifestyle content, and behind-the-scenes glimpses.\n * Act as the face of our brand by featuring in Reels, showcasing products/services, and effectively communicating key messages to our audience.\n * Collaborate with other influencers, UGC and brands as and when needed\n * Collaborate with our marketing team to develop content strategies and campaigns that drive engagement and growth.\n * Stay up-to-date with social media trends, algorithm changes, and emerging platforms to ensure our content remains relevant and effective.\n * Monitor and analyze performance metrics to optimize content and maximize reach and engagement.\n * Participate in photoshoots and video productions as needed, demonstrating comfort and confidence in front of the camera.\n * Create and Execute Social Media plans as prepared by the marketing team\n * Collaborate with other influencers and brands to increase visibility\n\nRequirements:\n\n * Proven experience creating compelling content for social media platforms, particularly Instagram Reels.\n * Strong understanding of social media trends, best practices, and platform algorithms.\n * Excellent communication and storytelling skills, with the ability to convey messages effectively through visuals and captions.\n * Comfortable and confident in front of the camera, with experience in photo and video shoots.\n * Ability to work independently and collaboratively in a fast-paced environment, managing multiple projects simultaneously.\n * Creative thinker with a keen eye for detail and a passion for creating visually stunning content.\n * Strong organizational and time management skills, with the ability to meet deadlines and prioritize tasks effectively.\n * Experience with graphic design and video editing software (e.g., Adobe Creative Suite, Final Cut Pro) is a plus.\n * A genuine interest in our industry/niche and a willingness to immerse yourself in our brand identity and values.\n\n",
+          "contractType": "Full-time",
+          "experienceLevel": "Entry level",
+          "workType": "Marketing and Advertising",
+          "sector": "Retail",
+          "applyType": "EASY_APPLY",
+          "applyUrl": "https://in.linkedin.com/jobs/view/influencer-at-the-black-box-co-4202374845?trk=public_jobs_topcard-title",
+          "descriptionHtml": "\n          <p><strong>Job Description:</strong> We are looking for a creative and outgoing individual who is passionate about social media content creation. As a Reel Creator and Social Media Influencer, you will be responsible for producing engaging and visually appealing content for our various social media platforms, with a primary focus on Instagram Reels.</p><p><strong>Responsibilities:</strong></p><ul><li>Create high-quality, engaging Instagram Reels that align with our brand identity and marketing objectives.</li><li>Plan, and execute creative ideas for Reels content, including but not limited to product showcases, tutorials, lifestyle content, and behind-the-scenes glimpses.</li><li>Act as the face of our brand by featuring in Reels, showcasing products/services, and effectively communicating key messages to our audience.</li><li>Collaborate with other influencers, UGC and brands as and when needed</li><li>Collaborate with our marketing team to develop content strategies and campaigns that drive engagement and growth.</li><li>Stay up-to-date with social media trends, algorithm changes, and emerging platforms to ensure our content remains relevant and effective.</li><li>Monitor and analyze performance metrics to optimize content and maximize reach and engagement.</li><li>Participate in photoshoots and video productions as needed, demonstrating comfort and confidence in front of the camera.</li><li>Create and Execute Social Media plans as prepared by the marketing team</li><li>Collaborate with other influencers and brands to increase visibility</li></ul><p><strong>Requirements:</strong></p><ul><li>Proven experience creating compelling content for social media platforms, particularly Instagram Reels.</li><li>Strong understanding of social media trends, best practices, and platform algorithms.</li><li>Excellent communication and storytelling skills, with the ability to convey messages effectively through visuals and captions.</li><li>Comfortable and confident in front of the camera, with experience in photo and video shoots.</li><li>Ability to work independently and collaboratively in a fast-paced environment, managing multiple projects simultaneously.</li><li>Creative thinker with a keen eye for detail and a passion for creating visually stunning content.</li><li>Strong organizational and time management skills, with the ability to meet deadlines and prioritize tasks effectively.</li><li>Experience with graphic design and video editing software (e.g., Adobe Creative Suite, Final Cut Pro) is a plus.</li><li>A genuine interest in our industry/niche and a willingness to immerse yourself in our brand identity and values.</li></ul><p></p>\n        ",
+          "companyId": "14567244",
+          "benefits": "",
+          "posterProfileUrl": "https://in.linkedin.com/in/rashi-biyani-81736057",
+          "posterFullName": "Rashi Biyani"
+        }
+      },
+      {
+        "json": {
+          "id": "4190019432",
+          "publishedAt": "2025-03-21",
+          "salary": "",
+          "title": "Junior Social Media Marketing Executive in Mumbai",
+          "jobUrl": "https://in.linkedin.com/jobs/view/junior-social-media-marketing-executive-in-mumbai-at-rannka-digital-4190019432?trk=public_jobs_topcard-title",
+          "companyName": "Rannka Digital",
+          "companyUrl": "https://in.linkedin.com/company/rannka-digital?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai Metropolitan Region",
+          "postedTime": "2 weeks ago",
+          "applicationsCount": "Be among the first 25 applicants",
+          "description": "Job brief: This role offers the candidate a total immersion into a digital marketing business and the successful candidate will work closely with the founders and executives to learn about social media, digital communications, and marketing in a business-to-business environment. This role will be instrumental in increasing our social media presence and gaining visibility for our brand among clients.\n\nKey Responsibilities\n\n\n * Build and maintain a daily, weekly, and monthly social media calendar\n * Create an engaging content strategy for social media platforms i.e. posts, stories, etc.\n * Leverage trending topics.\n * Working on content engagements, likes, views & more\n * Work as an experienced content creator, shooter, and editor to execute content in real-time across social media and emerging platform\n * Interact, engage, and communicate with influencers across all platforms\n * Planning, creating, and managing social media handles for the clients.\n * Work on SEO (keyword research, content briefs, off-page SEO)\n * Preparing monthly content calendars.\n * Preparing social media reports and summary\n * Planning contests & promotions for social media.\n * Running social media ads from the ads manager.\n   \n   \n\nOther Requirements\n\n\n * Fluency in verbal and written English\n * Basic knowledge of Word, Excel, etc.\n * Hands-on knowledge of social media platforms.\n * Excellent understanding of digital marketing concepts\n * Strong creative and analytical skills\n * Good communication skills\n * Minimum experience of 4 to 6 Months\n   \n   \n\nAbout Company: Rannka Digital 'the revolution in the digital world.' We are one of the best digital marketing agencies in Mumbai that focuses on ROI-driven digital marketing. We have clients across all verticals with a strong presence in digital marketing.",
+          "contractType": "Full-time",
+          "experienceLevel": "Entry level",
+          "workType": "Management, Marketing, and Writing/Editing",
+          "sector": "Advertising Services and Writing and Editing",
+          "applyUrl": "https://internshala.com/job/detail/junior-social-media-marketing-executive-job-in-mumbai-at-rannka-digital1742470319/?utm_campaign=linkedin_d2002&utm_source=Linkedin_Partnership",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          Job brief: This role offers the candidate a total immersion into a digital marketing business and the successful candidate will work closely with the founders and executives to learn about social media, digital communications, and marketing in a business-to-business environment. This role will be instrumental in increasing our social media presence and gaining visibility for our brand among clients.<br><br><strong>Key Responsibilities<br><br></strong><ul><li> Build and maintain a daily, weekly, and monthly social media calendar</li><li> Create an engaging content strategy for social media platforms i.e. posts, stories, etc.</li><li> Leverage trending topics.</li><li> Working on content engagements, likes, views &amp; more</li><li> Work as an experienced content creator, shooter, and editor to execute content in real-time across social media and emerging platform</li><li> Interact, engage, and communicate with influencers across all platforms</li><li> Planning, creating, and managing social media handles for the clients.</li><li> Work on SEO (keyword research, content briefs, off-page SEO)</li><li> Preparing monthly content calendars.</li><li> Preparing social media reports and summary</li><li> Planning contests &amp; promotions for social media.</li><li> Running social media ads from the ads manager.<br><br></li></ul><strong>Other Requirements<br><br></strong><ul><li> Fluency in verbal and written English</li><li> Basic knowledge of Word, Excel, etc.</li><li> Hands-on knowledge of social media platforms.</li><li> Excellent understanding of digital marketing concepts</li><li> Strong creative and analytical skills</li><li> Good communication skills</li><li> Minimum experience of 4 to 6 Months<br><br></li></ul>About Company: Rannka Digital &apos;the revolution in the digital world.&apos; We are one of the best digital marketing agencies in Mumbai that focuses on ROI-driven digital marketing. We have clients across all verticals with a strong presence in digital marketing.\n        ",
+          "companyId": "68974110",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4177582311",
+          "publishedAt": "2025-03-10",
+          "salary": "",
+          "title": "Intern - Social Media",
+          "jobUrl": "https://in.linkedin.com/jobs/view/intern-social-media-at-segumento-4177582311?trk=public_jobs_topcard-title",
+          "companyName": "Segumento",
+          "companyUrl": "https://in.linkedin.com/company/segumento?trk=public_jobs_topcard-org-name",
+          "location": "Mumbai Metropolitan Region",
+          "postedTime": "3 weeks ago",
+          "applicationsCount": "Be among the first 25 applicants",
+          "description": "Overview\n\nSocial Donut is a dynamic and innovative digital marketing agency based in Mumbai, dedicated to delivering creative and impactful marketing solutions for our diverse clientele.\n\nWe are seeking a talented and passionate Social Media Intern to join our team. The ideal candidate will be responsible for developing high-quality, engaging content that resonates with our target audience and supports our clients' digital marketing goals. This role requires a creative mindset, strong writing skills, and a deep understanding of digital marketing trends.\n\nResponsibilities\n\n\n * Create and feature in compelling and original content ( Reels, Videos, Voiceovers) for various digital platforms (Instagram, FB, YouTube, LinkedIn)\n * Research industry-related topics to generate ideas and produce content that attracts and engages our target audience.\n * Stay up-to-date with the latest digital marketing trends, tools, and best practices.\n * Assist in the planning and execution of content marketing campaigns and initiatives.\n   \n   \n\nRequirements\n\n\n * Bachelor's degree in any related field.\n * Proven experience as a Content Creator, or a similar role.\n * Confident in front of Camera . Previous experience in acting / theatre can be a plus.\n * Strong organizational and time-management skills.\n * Knowledge of multimedia content creation tools (e.g., Adobe Creative Suite, Canva) is a plus.",
+          "contractType": "Full-time",
+          "experienceLevel": "Entry level",
+          "workType": "Marketing",
+          "sector": "Marketing Services",
+          "applyUrl": "https://supertribe.keka.com/careers/jobdetails/73607?source=linkedin",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          <strong>Overview<br><br></strong>Social Donut is a dynamic and innovative digital marketing agency based in Mumbai, dedicated to delivering creative and impactful marketing solutions for our diverse clientele.<br><br>We are seeking a talented and passionate Social Media Intern to join our team. The ideal candidate will be responsible for developing high-quality, engaging content that resonates with our target audience and supports our clients&apos; digital marketing goals. This role requires a creative mindset, strong writing skills, and a deep understanding of digital marketing trends.<br><br><strong>Responsibilities<br><br></strong><ul><li> Create and feature in compelling and original content ( Reels, Videos, Voiceovers) for various digital platforms (Instagram, FB, YouTube, LinkedIn)</li><li> Research industry-related topics to generate ideas and produce content that attracts and engages our target audience.</li><li> Stay up-to-date with the latest digital marketing trends, tools, and best practices.</li><li> Assist in the planning and execution of content marketing campaigns and initiatives.<br><br></li></ul><strong>Requirements<br><br></strong><ul><li> Bachelor&apos;s degree in any related field.</li><li> Proven experience as a Content Creator, or a similar role.</li><li> Confident in front of Camera . Previous experience in acting / theatre can be a plus.</li><li> Strong organizational and time-management skills.</li><li> Knowledge of multimedia content creation tools (e.g., Adobe Creative Suite, Canva) is a plus.</li></ul>\n        ",
+          "companyId": "92783744",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      },
+      {
+        "json": {
+          "id": "4193490782",
+          "publishedAt": "2025-03-28",
+          "salary": "",
+          "title": "Marketing & Communications Manager",
+          "jobUrl": "https://in.linkedin.com/jobs/view/marketing-communications-manager-at-torq-commodities-4193490782?trk=public_jobs_topcard-title",
+          "companyName": "Torq Commodities",
+          "companyUrl": "https://ch.linkedin.com/company/torq-commodities?trk=public_jobs_topcard-org-name",
+          "location": "Navi Mumbai, Maharashtra, India",
+          "postedTime": "1 week ago",
+          "applicationsCount": "37 applicants",
+          "description": "Job Description\n\nAbout You:\n\n\n * You are not just a marketer—you are a growth hacker, trend-spotter, and out-of-the-box thinker rolled into one. You eat conventional marketing playbooks for breakfast and replace them with bold, disruptive strategies. You don’t just follow trends—you set them.\n * You have spent the last few years reinventing B2B marketing—maybe with guerrilla campaigns, meme-worthy LinkedIn posts, or data-driven experiments that made competitors go “Wait, why didn’t we think of that?”\n * Last but not the least, you should be someone who is chronically online (but in a productive way) and allergic to boring content.\n   \n   \n\nWhat You Will Do:\n\n\n * Reimagine & Reinvent: Torq’s marketing isn’t broken—but why settle for \"good\" when we can be unforgettable? You will challenge the status quo and inject fresh, bold ideas into everything we do.\n * Trend Hunter: You will stalk the market (in a non-creepy way) to spot what’s next—be it AI-powered engagement, viral B2B storytelling, or even Instagram for commodities (hey, why not?).\n * Unconventional Storyteller: You won’t just write blogs—you will craft content that slaps. Think snappy LinkedIn hooks, edgy thought leadership, and campaigns that make our audience go “Damn, Torq gets it.”\n * Competitor FOMO Creator: You will make sure Torq isn’t just keeping up—we are leading the charge. If our competitors copy us? Good. Mission accomplished.\n   \n   \n\nThis isn't your typical \"post on LinkedIn 3x a week\" role. You will be:\n\n\n * Bringing fresh, borderline chaotic energy to our strategy\n * Researching industry trends before they're trending\n * Creating marketing that doesn't feel like marketing\n * Making strategic moves that have our competitors taking screenshots\n   \n   \n\nWho You Are:\n\n✔ A Strategic Rebel – You don’t just execute; you redefine the game.\n\n✔ Data-Lover + Creative Genius – You back wild ideas with cold, hard analytics.\n\n✔ Obsessed with Growth – You live for “What’s next?” and “How can we do this better?”\n\n✔ Tech-Savvy – Because if you are not leveraging AI, automation, and weirdly effective hacks, are you even marketing?\n\nThe green flags we are looking for\n\n\n * You have got receipts (case studies) from previous B2B work that actually slapped\n * You can explain complex ideas without putting people to sleep\n * You are obsessed with what makes things go viral, even in \"boring\" industries\n * You send \"you have to see this\" messages to your group chats about clever marketing campaigns\n * You know the difference between genuinely innovative and just weird for weird’ s sake\n   \n   \n\nDon’t Apply If:\n\n\n * You need someone to hand you a to-do list every morning.\n * You are only here for the salary.\n * You believe “this is how we’ve always done it” is a valid reason.\n   \n   \n\nRequirements\n\n\n * Experience: 2-3 years of breaking norms in B2B marketing, where you didn’t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!).\n * Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that\n * Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition\n   \n   \n\nWhy Torq?\n\nNo Red Tape, Just Green Lights – Pitch crazy ideas? We will say, “Try it.”\n\nOwnership & Impact – This isn’t a support role—you will shape our voice and strategy.\n\nWork with a High-Energy Team – We are ambitious, fast, and a little quirky (okay, a lot).\n\nReady to Break the Mold?\n\nIf you are nodding along like “This was made for me”, shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it’s weirdly genius). Let’s make marketing that doesn’t just talk—it slaps.\n\nRequirements\n\nExperience: 2-3 years of breaking norms in B2B marketing, where you didn’t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!). Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition Why Torq? No Red Tape, Just Green Lights – Pitch crazy ideas? We will say, “Try it.” Ownership & Impact – This isn’t a support role—you will shape our voice and strategy. Work with a High-Energy Team – We are ambitious, fast, and a little quirky (okay, a lot). Ready to Break the Mold? If you are nodding along like “This was made for me”, shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it’s weirdly genius). Let’s make marketing that doesn’t just talk—it slaps.",
+          "contractType": "Full-time",
+          "experienceLevel": "Mid-Senior level",
+          "workType": "Marketing and Sales",
+          "sector": "Wholesale Import and Export",
+          "applyUrl": "https://in.talent.com/redirect?id=6711c0ce7334&source=linkedin-premium&utm_source=partner&pos=3646&utm_medium=linkedin-premium&puid=3deagdd93defgddf3aedgddggaddfadb3de9fddd3dedgddc3ee33deg3ee33ced3cef3cecged33def3de9gddc3dec3deggddf3deb3def3de73de73ee3gdd9&cg=talent",
+          "applyType": "EXTERNAL",
+          "descriptionHtml": "\n          <strong><strong>Job Description<br><br></strong></strong><strong>About You:<br><br></strong><ul><li>You are not just a marketer&#x2014;you are a growth hacker, trend-spotter, and out-of-the-box thinker rolled into one. You eat conventional marketing playbooks for breakfast and replace them with bold, disruptive strategies. You don&#x2019;t just follow trends&#x2014;you set them.</li><li>You have spent the last few years reinventing B2B marketing&#x2014;maybe with guerrilla campaigns, meme-worthy LinkedIn posts, or data-driven experiments that made competitors go &#x201c;Wait, why didn&#x2019;t we think of that?&#x201d;</li><li>Last but not the least, you should be someone who is chronically online (but in a productive way) and allergic to boring content.<br><br></li></ul><strong><strong>What You Will Do:<br><br></strong></strong><ul><li>Reimagine &amp; Reinvent: Torq&#x2019;s marketing isn&#x2019;t broken&#x2014;but why settle for &quot;good&quot; when we can be unforgettable? You will challenge the status quo and inject fresh, bold ideas into everything we do.</li><li>Trend Hunter: You will stalk the market (in a non-creepy way) to spot what&#x2019;s next&#x2014;be it AI-powered engagement, viral B2B storytelling, or even Instagram for commodities (hey, why not?).</li><li>Unconventional Storyteller: You won&#x2019;t just write blogs&#x2014;you will craft content that slaps. Think snappy LinkedIn hooks, edgy thought leadership, and campaigns that make our audience go &#x201c;Damn, Torq gets it.&#x201d;</li><li>Competitor FOMO Creator: You will make sure Torq isn&#x2019;t just keeping up&#x2014;we are leading the charge. If our competitors copy us? Good. Mission accomplished.<br><br></li></ul>This isn&apos;t your typical <strong>&quot;post on LinkedIn 3x a week&quot;</strong> role. You will be:<br><br><ul><li>Bringing fresh, borderline chaotic energy to our strategy</li><li>Researching industry trends before they&apos;re trending</li><li>Creating marketing that doesn&apos;t feel like marketing</li><li>Making strategic moves that have our competitors taking screenshots<br><br></li></ul><strong><strong>Who You Are:<br><br></strong></strong>&#x2714; <strong>A Strategic Rebel</strong> &#x2013; You don&#x2019;t just execute; you <strong>redefine the game</strong>.<br><br>&#x2714; <strong>Data-Lover + Creative Genius</strong> &#x2013; You back wild ideas with <strong>cold, hard analytics</strong>.<br><br>&#x2714; <strong>Obsessed with Growth</strong> &#x2013; You live for <strong>&#x201c;What&#x2019;s next?&#x201d;</strong> and <strong>&#x201c;How can we do this better?&#x201d;<br><br></strong>&#x2714; <strong>Tech-Savvy</strong> &#x2013; Because if you are not leveraging AI, automation, and weirdly effective hacks, are you even marketing?<br><br><strong>The green flags we are looking for<br><br></strong><ul><li>You have got receipts (case studies) from previous B2B work that actually slapped</li><li>You can explain complex ideas without putting people to sleep</li><li>You are obsessed with what makes things go viral, even in &quot;boring&quot; industries</li><li>You send &quot;you have to see this&quot; messages to your group chats about clever marketing campaigns</li><li>You know the difference between genuinely innovative and just weird for weird&#x2019; s sake<br><br></li></ul><strong><strong>Don&#x2019;t Apply If:<br><br></strong></strong><ul><li>You need someone to hand you a to-do list every morning.</li><li>You are only here for the salary.</li><li>You believe &#x201c;this is how we&#x2019;ve always done it&#x201d; is a valid reason.<br><br></li></ul><strong>Requirements<br><br></strong><ul><li>Experience: 2-3 years of breaking norms in B2B marketing, where you didn&#x2019;t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!).</li><li>Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that</li><li>Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition<br><br></li></ul>Why Torq?<br><br>No Red Tape, Just Green Lights &#x2013; Pitch crazy ideas? We will say, &#x201c;Try it.&#x201d;<br><br>Ownership &amp; Impact &#x2013; This isn&#x2019;t a support role&#x2014;you will shape our voice and strategy.<br><br>Work with a High-Energy Team &#x2013; We are ambitious, fast, and a little quirky (okay, a lot).<br><br>Ready to Break the Mold?<br><br>If you are nodding along like <em>&#x201c;This was made for me&#x201d;</em>, shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it&#x2019;s weirdly genius). Let&#x2019;s make marketing that doesn&#x2019;t just talk&#x2014;it <em>slaps</em>.<br><br><strong><strong>Requirements<br><br></strong></strong>Experience: 2-3 years of breaking norms in B2B marketing, where you didn&#x2019;t just run email campaigns or post LinkedIn carousels on repeat. (No boring brochures, please!). Education: Tier 1 college postgrad + BTech/BE (Because logic + creativity = Fire). You are a proud graduate from a Tier-1 college (IIM, ISB, MICA, etc.) and survived the engineering gauntlet before that Mindset : You think brand storytelling is just as important as spreadsheets. You hate mediocrity and wake up every day thinking about how to outsmart the competition Why Torq? No Red Tape, Just Green Lights &#x2013; Pitch crazy ideas? We will say, &#x201c;Try it.&#x201d; Ownership &amp; Impact &#x2013; This isn&#x2019;t a support role&#x2014;you will shape our voice and strategy. Work with a High-Energy Team &#x2013; We are ambitious, fast, and a little quirky (okay, a lot). Ready to Break the Mold? If you are nodding along like &#x201c;This was made for me&#x201d;, shoot us your resume + one marketing idea that would make Torq stand out (bonus points if it&#x2019;s weirdly genius). Let&#x2019;s make marketing that doesn&#x2019;t just talk&#x2014;it slaps.\n        ",
+          "companyId": "31361372",
+          "benefits": "",
+          "posterProfileUrl": "",
+          "posterFullName": ""
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Email Verifier API": {
+      "main": [
+        [
+          {
+            "node": "email validation data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Finder API": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "allData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "person data": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email validation data": {
+      "main": [
+        [
+          {
+            "node": "verifier rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verifier rule": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "person data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Code13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Verifier API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "allData": {
+      "main": [
+        [
+          {
+            "node": "emails",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "linkedin scraper": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code13": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Finder API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code17": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code16": {
+      "main": [
+        [
+          {
+            "node": "Code18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code18": {
+      "main": [
+        [
+          {
+            "node": "linkedin scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code19": {
+      "main": [
+        [
+          {
+            "node": "linkedin scraper1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "linkedin scraper1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        []
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        []
+      ]
+    },
+    "Code8": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emails": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "linkedin scraper1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "linkedin scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "Email Finder API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait9": {
+      "main": [
+        [
+          {
+            "node": "Email Verifier API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait10": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait11": {
+      "main": [
+        [
+          {
+            "node": "emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait12": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait13": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait14": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "errorWorkflow": "023dcZAPTtTCRzOl"
+  },
+  "versionId": "8f6012c8-2422-48ea-8b02-3f0229f362ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "96bfcbb29f60f29fd3e3d2eeb71e81d33de0eb28944634e7c19762a8093e330d"
+  },
+  "id": "KPbLY5bsH93mnmy7",
+  "tags": []
+}
