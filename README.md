@@ -31,6 +31,7 @@ This repository contains a complete **n8n workflow** designed to automate B2B le
 - Connected **Google Sheets (trigger node)** and **Google Form**
 - Gmail SMTP (OAuth2-based)
 - Apify account (for scraping actors)
+- Email enrichment tool (Hunter.io)
 - [Google Cloud Console App](https://console.cloud.google.com/) for OAuth setup
 
 ---
@@ -54,7 +55,8 @@ This repository contains a complete **n8n workflow** designed to automate B2B le
 3. **Configure Credentials:**
    - Google Sheets OAuth
    - Gmail SMTP OAuth
-   - Apify API key 
+   - Apify API key
+   - Hunter.io API key 
 
 4. **Test by Submitting a Google Form:**
    - Make sure it's connected to the sheet configured in n8n
