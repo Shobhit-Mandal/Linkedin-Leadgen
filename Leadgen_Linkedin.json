@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "url": "=https://api.hunter.io/v2/email-verifier?email={{ $json.value }}&api_key=",
+        "url": "=https://api.hunter.io/v2/email-verifier?email={{ $json.value }}&api_key=*******************************",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -21,7 +21,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://api.hunter.io/v2/domain-search?domain={{ $json.websiteUrl }}/&api_key=",
+        "url": "=https://api.hunter.io/v2/domain-search?domain={{ $json.websiteUrl }}/&api_key=**********************************",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -615,12 +615,12 @@
         },
         "documentId": {
           "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk",
+          "value": "https://docs.google.com/spreadsheets/d/*********************************",
           "mode": "url"
         },
         "sheetName": {
           "__rl": true,
-          "value": "https://docs.google.com/spreadsheets/d/1b4PPDRTFUFOUMq4MwrzLj8411MqfDk8UcZineKp7Emk/edit?gid=1153163846#gid=1153163846",
+          "value": "https://docs.google.com/spreadsheets/d/**************************************",
           "mode": "url"
         },
         "event": "rowAdded",
@@ -662,7 +662,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer apify_api_j0AB4hyrp28v7vUL2Cy8AD445nJuye2smUVf"
+              "value": "Bearer ****************************************"
             }
           ]
         },
@@ -710,7 +710,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer apify_api_j0AB4hyrp28v7vUL2Cy8AD445nJuye2smUVf"
+              "value": "Bearer *******************************************"
             }
           ]
         },
