@@ -1,77 +1,76 @@
-# Linkedin-Leadgen
-Linkedin lead generation and outreach automation using n8n and apify.
+# LinkedIn Lead Generation & Outreach System
 
-This repository contains a complete **n8n workflow** designed to automate B2B lead generation and cold outreach using data directly submitted through a Google Form. The system fetches job listings, enriches them with contact info, and sends out personalized cold emails.
-
----
-
-## ✅ How It Works
-
-1. **Google Form** collects input from the user:
-   - LinkedIn job search URL (with filters like title, location, job type, etc.)
-   - Agency/business name
-   - Services offered
-   - Contact details
-
-2. **Google Sheet** stores the submitted responses.
-
-3. **n8n Workflow** is triggered when a new row is added to the sheet:
-   - Scrapes job and company data using Apify scrapers
-   - Finds potential decision-makers using 3rd-party APIs
-   - Prioritizes HR/Manager-level contacts
-   - Generates highly tailored cold emails using llama & deepseek LLMs
-   - Sends emails using **Gmail SMTP via OAuth**
-   - Logs results + handles retries and errors
+An end-to-end automation system that converts job signals into qualified leads and personalized outreach using n8n, APIs, and LLMs.
 
 ---
 
-## 🛠️ Requirements
+## 🚀 Problem
 
-- n8n v1.82.3 or later
-- Connected **Google Sheets (trigger node)** and **Google Form**
-- Gmail SMTP (OAuth2-based)
-- Apify account (for scraping actors)
-- Email enrichment tool (Hunter.io)
-- [Google Cloud Console App](https://console.cloud.google.com/) for OAuth setup
+Agencies and service businesses spend hours manually:
 
----
+- finding companies that are actively hiring (high-intent signal)
+- identifying relevant decision-makers
+- writing personalized cold emails
 
-## 🧠 Features
-
-- Zero frontend hosting needed — simply use Google Form
-- Google Sheets Trigger to start workflow
-- Scrapes job posts from LinkedIn search URL
-- Prioritizes top leads (HR, Marketing, Recruiters)
-- Personalizes cold emails with agency context
-- Uses retry logic + error handling for resilience
-- Gmail SMTP integration with OAuth2 for sending
-
-## ⏱️ Running the Project
-
-1. **Open n8n (locally or on server)**  
-2. **Import the Workflow:**
-   - Go to `Editor UI` → `Import` → upload `leadgen-workflow.json`
-
-3. **Configure Credentials:**
-   - Google Sheets OAuth
-   - Gmail SMTP OAuth
-   - Apify API key
-   - Hunter.io API key 
-
-4. **Test by Submitting a Google Form:**
-   - Make sure it's connected to the sheet configured in n8n
-   - Check executions tab for activity
+This process is repetitive, time-consuming, and inconsistent.
 
 ---
 
-## 📧 Contact
+## ⚙️ Solution
 
-**Project Maintainer**  
-`shobhitmandal0209@gmail.com`  
+Designed an automated workflow that:
 
+1. Captures user intent via a simple Google Form
+2. Identifies high-intent companies from LinkedIn job listings
+3. Enriches company and contact data using APIs
+4. Prioritizes relevant decision-makers (HR, founders, managers)
+5. Generates personalized cold emails using LLMs
+6. Sends outreach automatically and tracks execution
 
 ---
 
-## 📄 License
+## 🧠 System Flow
 
-This project is open-sourced under the [MIT License](LICENSE).
+Input → Processing → Output
+
+- **Input:** LinkedIn job search URL + business context (services, positioning)
+- **Processing:**
+  - scrape job & company data (Apify)
+  - enrich contacts (Hunter / APIs)
+  - filter & prioritize leads
+  - generate personalized messaging (LLMs)
+- **Output:** Automated email outreach pipeline with logging and retry handling
+
+---
+
+## 🔧 Tech Stack
+
+- n8n (workflow orchestration)
+- Apify (data scraping)
+- Hunter.io (email enrichment)
+- Gmail SMTP (OAuth2)
+- LLMs (Llama / DeepSeek)
+- Google Sheets (trigger + logging)
+
+---
+
+## 📌 Key Features
+
+- End-to-end automation from lead discovery → outreach
+- High-intent targeting using hiring signals
+- Personalized messaging at scale using LLMs
+- Retry and error-handling built into workflow
+- No frontend required (form + sheet based system)
+
+---
+
+## ⚠️ Note
+
+Some third-party integrations may require fresh API keys or configuration updates, but the core workflow design and logic remain intact.
+
+---
+
+## 👤 Author
+
+Shobhit Mandal  
+Contact: shobhitmandal0209@gmail.com
